@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#05070d">
+    <title>About — RoachFinder</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <a href="index.html" class="brand">RoachFinder</a>
+        <ul class="nav-links">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="about.html">About</a></li>
+            <li><a href="current-week.html">Current Week</a></li>
+            <li><a href="history.html">History</a></li>
+            <li><a href="calculator.html">Calculator</a></li>
+        </ul>
+        <div class="hamburger">
+            <span></span><span></span><span></span>
+        </div>
+    </nav>
+
+    <div class="mobile-overlay"></div>
+    <div class="mobile-nav">
+        <a href="index.html">Home</a>
+        <a href="about.html">About</a>
+        <a href="current-week.html">Current Week</a>
+        <a href="history.html">History</a>
+        <a href="calculator.html">Calculator</a>
+    </div>
+
+    <!-- Content -->
+    <div class="content">
+
+        <p class="section-subtitle">The System</p>
+        <h1 class="section-title hero">About RoachFinder</h1>
+
+        <!-- Mission -->
+        <div class="eyebrow-row"><span class="section-eyebrow">Mission</span></div>
+        <div class="about-section">
+            <p style="text-align:center">
+                Provide a selection of NFL spread wagers for weeks 2&ndash;16 of the NFL season.
+                Ideally, the algorithm will decide winning wagers <strong>&ge; 52.38%</strong> of the time.
+                This will, in the long term, result in being +$ on the season.
+            </p>
+            <div class="highlight-box red" style="text-align:center;margin-top:18px">
+                <strong>DO NOT wager Week #1 or Week #17</strong>
+            </div>
+        </div>
+
+        <!-- How To -->
+        <div class="eyebrow-row"><span class="section-eyebrow gold">How to Use It</span></div>
+        <div class="about-section">
+            <p style="text-align:center">
+                It is very important that this algorithm is followed in the manner in which it was designed to be
+                utilized. Essentially, there are 2 key factors that must be followed.
+            </p>
+            <div class="highlight-box green" style="margin:22px auto;max-width:640px">
+                <div style="font-size:0.75rem;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:var(--accent-hi);margin-bottom:12px;text-align:center">Key Factors</div>
+                <p style="margin:10px 0"><strong>1.</strong> Wager the same unit/monetary amount for each matchup
+                    within that current week. This can be by your discretion or use the Kelly Calculator.</p>
+                <p style="margin:10px 0"><strong>2.</strong> Gamble on the same number of games week over week.</p>
+            </div>
+            <p style="text-align:center;font-style:italic;color:var(--text-dim)">
+                If you do this AND the algorithm performs with an accuracy greater than ~53%, you will have made a
+                profit at the season end.
+            </p>
+        </div>
+
+        <!-- Kelly Criterion Explanation -->
+        <div class="eyebrow-row"><span class="section-eyebrow blue">Kelly Criterion</span></div>
+        <div class="about-section">
+            <p style="text-align:center">
+                A <strong>Kelly Criterion Calculator</strong> has been implemented to optimize your betting
+                strategy based on actual performance data. This mathematical approach replaces the fixed-unit
+                betting system with dynamic position sizing that adapts to your bankroll and our proven win rate.
+            </p>
+
+            <div class="highlight-box blue" style="margin:22px auto;max-width:700px;text-align:center">
+                <div style="font-size:0.75rem;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:#93c5fd;margin-bottom:12px">Formula</div>
+                <div class="mono" style="font-size:1.6rem;font-weight:700;margin-bottom:14px;letter-spacing:0.05em">
+                    f = (bp &minus; q) / b
+                </div>
+                <div style="text-align:left;display:inline-block;font-size:0.92rem;color:var(--text-dim)">
+                    <p style="margin:4px 0"><strong style="color:var(--text)">f</strong> = Fraction of bankroll to wager</p>
+                    <p style="margin:4px 0"><strong style="color:var(--text)">b</strong> = Net odds received (profit per dollar wagered)</p>
+                    <p style="margin:4px 0"><strong style="color:var(--text)">p</strong> = Probability of winning (current win rate)</p>
+                    <p style="margin:4px 0"><strong style="color:var(--text)">q</strong> = Probability of losing (1 &minus; p)</p>
+                </div>
+            </div>
+
+            <p style="text-align:center;color:var(--text-dim)">
+                The Kelly Criterion maximizes the logarithm of wealth over time, ensuring optimal capital growth
+                while minimizing the risk of ruin. Unlike fixed betting, Kelly adjusts your wager size based on your
+                <em>edge</em> and the <em>odds</em> offered.
+            </p>
+
+            <div class="highlight-box green" style="margin:22px auto;max-width:660px">
+                <div style="font-size:0.75rem;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:var(--accent-hi);margin-bottom:10px;text-align:center">Weekly Implementation</div>
+                <p style="margin:8px 0"><strong>1.</strong> Input your current bankroll at the start of each week</p>
+                <p style="margin:8px 0"><strong>2.</strong> The calculator uses cumulative win rate to determine optimal bet size</p>
+                <p style="margin:8px 0"><strong>3.</strong> Bet the calculated amount on each recommended game</p>
+                <p style="margin:8px 0"><strong>4.</strong> Adjust bankroll weekly based on wins/losses and recalculate</p>
+            </div>
+
+            <p style="text-align:center;font-style:italic;color:var(--text-dim)">
+                <strong>Important:</strong> It is recommended to use fractional Kelly (1/2 or 1/4) to reduce volatility.
+                The calculator provides both full Kelly and conservative options to match your risk tolerance
+                while maintaining mathematically optimal growth rates.
+            </p>
+        </div>
+
+        <!-- Roach's Disclaimer -->
+        <div class="eyebrow-row"><span class="section-eyebrow">Roach's Disclaimer</span></div>
+        <div class="about-section">
+            <p style="text-align:center;font-style:italic;color:var(--text-dim);line-height:1.8">
+                The Kelly Criterion is simply a formula to find the optimal fraction of capital to bet
+                given opportunities to maximize long-term growth by minimizing risk to the highest degree.
+                I will be privately tracking the performance of the Kelly Criterion vs Fixed Unit betting over the
+                course of the season; you guys will only see Fixed Unit as usual.
+                In order for the Kelly Criterion to be effective, it requires a positive expectation &mdash; a definite
+                advantage.
+                Since the RoachFinder does not have a true edge WoW, we have to speculate it provides a positive EV, so
+                the mathematical reality of its advantage is really more of an assumption.
+                This is just a tool for you all to give an idea of bankroll management week over week.
+                For that matter, the assumption of 'p' (our probability of winning) is based on last year's win rate.
+                In that same chord, q is 1&minus;p.
+            </p>
+            <p style="text-align:center;margin-top:18px;font-style:italic;color:var(--text-dim)">
+                I highly recommend one of my favorite youtube videos from Marcin Anforowicz on the "Just One More"
+                paradox and the Kelly Criterion
+                <a href="https://www.youtube.com/watch?v=_FuuYSM7yOo" target="_blank" rel="noopener"
+                   style="font-weight:700;text-decoration:underline">HERE</a>.
+            </p>
+            <p style="text-align:center;margin-top:14px;font-style:italic;color:var(--text-dim)">
+                As always, bet responsibly &amp; within your means. Good Luck all &mdash; Roach
+            </p>
+        </div>
+
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>&copy; 2026 RoachFinder</p>
+        <a href="index.html">Home</a>
+        <a href="about.html">About</a>
+        <a href="current-week.html">Current Week</a>
+        <a href="history.html">History</a>
+        <a href="calculator.html">Calculator</a>
+    </footer>
+
+    <script src="main.js"></script>
+</body>
+</html>

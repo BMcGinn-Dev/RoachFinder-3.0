@@ -1,0 +1,9 @@
+{
+  "cumulative": {
+    "all_spreads": { "wins": 0, "losses": 0, "pushes": 0, "win_pct": 0.0 },
+    "above_median": { "wins": 0, "losses": 0, "pushes": 0, "win_pct": 0.0 },
+    "top_5": { "wins": 0, "losses": 0, "pushes": 0, "win_pct": 0.0 }
+  },
+  "rolling_median_cf": 0.0,
+  "weeks": {}
+}

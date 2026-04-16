@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#05070d">
+    <title>RoachFinder 3.0 — Home</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- ── Navbar ──────────────────────────────────────────── -->
+    <nav class="navbar">
+        <a href="index.html" class="brand">RoachFinder</a>
+        <ul class="nav-links">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="about.html">About</a></li>
+            <li><a href="current-week.html">Current Week</a></li>
+            <li><a href="history.html">History</a></li>
+            <li><a href="calculator.html">Calculator</a></li>
+        </ul>
+        <div class="hamburger">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </nav>
+
+    <div class="mobile-overlay"></div>
+    <div class="mobile-nav">
+        <a href="index.html">Home</a>
+        <a href="about.html">About</a>
+        <a href="current-week.html">Current Week</a>
+        <a href="history.html">History</a>
+        <a href="calculator.html">Calculator</a>
+    </div>
+
+    <!-- ── Content ────────────────────────────────────────── -->
+    <div class="content">
+        <p class="section-subtitle">2026 – 2027 Season</p>
+        <h1 class="section-title hero">Current Season</h1>
+
+        <!-- All Spreads Record -->
+        <div class="eyebrow-row">
+            <span class="section-eyebrow">All Spreads Record</span>
+        </div>
+        <div class="stat-cards">
+            <div class="stat-card wins">
+                <div class="label">Wins</div>
+                <div class="value" id="all-spreads-wins">0</div>
+            </div>
+            <div class="stat-card losses">
+                <div class="label">Losses</div>
+                <div class="value" id="all-spreads-losses">0</div>
+            </div>
+            <div class="stat-card overall">
+                <div class="label">Win Rate</div>
+                <div class="value" id="all-spreads-pct">0.000%</div>
+            </div>
+        </div>
+
+        <!-- Above Median Record -->
+        <div class="eyebrow-row">
+            <span class="section-eyebrow gold">&ge; Median Confidence Factor</span>
+        </div>
+        <div class="stat-cards">
+            <div class="stat-card wins">
+                <div class="label">Wins</div>
+                <div class="value" id="above-median-wins">0</div>
+            </div>
+            <div class="stat-card losses">
+                <div class="label">Losses</div>
+                <div class="value" id="above-median-losses">0</div>
+            </div>
+            <div class="stat-card overall">
+                <div class="label">Win Rate</div>
+                <div class="value" id="above-median-pct">0.000%</div>
+            </div>
+        </div>
+
+        <!-- Top 5 Record -->
+        <div class="eyebrow-row">
+            <span class="section-eyebrow blue">Top 5 Spreads</span>
+        </div>
+        <div class="stat-cards">
+            <div class="stat-card wins">
+                <div class="label">Wins</div>
+                <div class="value" id="top-5-wins">0</div>
+            </div>
+            <div class="stat-card losses">
+                <div class="label">Losses</div>
+                <div class="value" id="top-5-losses">0</div>
+            </div>
+            <div class="stat-card overall">
+                <div class="label">Win Rate</div>
+                <div class="value" id="top-5-pct">0.000%</div>
+            </div>
+        </div>
+
+        <!-- DraftKings CTA -->
+        <div class="cta-card">
+            <h3>Ready to put a ticket in?</h3>
+            <p>Join DraftKings &amp; receive up to 10 100% Profit Boosts for your first bets.</p>
+            <a href="https://sportsbook.draftkings.com/r/sb/roachjohnson/US-IL-SB" class="cta-btn" target="_blank" rel="noopener">Join DraftKings</a>
+        </div>
+    </div>
+
+    <!-- ── Footer ──────────────────────────────────────────– -->
+    <footer class="footer">
+        <p>&copy; 2026 RoachFinder</p>
+        <a href="index.html">Home</a>
+        <a href="about.html">About</a>
+        <a href="current-week.html">Current Week</a>
+        <a href="history.html">History</a>
+        <a href="calculator.html">Calculator</a>
+    </footer>
+
+    <!-- ── Scripts ────────────────────────────────────────── -->
+    <script src="main.js"></script>
+    <script>
+        /**
+         * Load and populate season statistics from data/season_record.json
+         */
+        async function loadSeasonData() {
+            const data = await fetchJSON('data/season_record.json');
+            if (!data || !data.cumulative) {
+                console.warn('Could not load season data');
+                return;
+            }
+
+            const c = data.cumulative;
+            const populate = (key, idPrefix) => {
+                if (!c[key]) return;
+                const wins   = c[key].wins   ?? 0;
+                const losses = c[key].losses ?? 0;
+                const pct    = c[key].win_pct ?? 0;
+                countUpWhenVisible(document.getElementById(`${idPrefix}-wins`),   wins);
+                countUpWhenVisible(document.getElementById(`${idPrefix}-losses`), losses);
+                countUpWhenVisible(document.getElementById(`${idPrefix}-pct`),    pct, { decimals: 3, suffix: '%' });
+            };
+
+            populate('all_spreads',  'all-spreads');
+            populate('above_median', 'above-median');
+            populate('top_5',        'top-5');
+        }
+
+        document.addEventListener('DOMContentLoaded', loadSeasonData);
+    </script>
+</body>
+</html>

@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#05070d">
+    <title>Calculator — RoachFinder</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <a href="index.html" class="brand">RoachFinder</a>
+        <ul class="nav-links">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="about.html">About</a></li>
+            <li><a href="current-week.html">Current Week</a></li>
+            <li><a href="history.html">History</a></li>
+            <li><a href="calculator.html">Calculator</a></li>
+        </ul>
+        <div class="hamburger">
+            <span></span><span></span><span></span>
+        </div>
+    </nav>
+
+    <div class="mobile-overlay"></div>
+    <div class="mobile-nav">
+        <a href="index.html">Home</a>
+        <a href="about.html">About</a>
+        <a href="current-week.html">Current Week</a>
+        <a href="history.html">History</a>
+        <a href="calculator.html">Calculator</a>
+    </div>
+
+    <!-- Content -->
+    <div class="content">
+
+        <p class="section-subtitle">Bankroll Tools</p>
+        <h1 class="section-title hero">Calculators</h1>
+
+        <!-- ═══ Kelly Criterion Calculator ═══ -->
+        <div class="calculator-card">
+            <h2>Kelly Criterion</h2>
+            <p class="calc-subtitle">Optimize your bet sizing based on probability and odds</p>
+
+            <div class="highlight-box green" style="text-align:center;margin-bottom:20px">
+                <div style="font-size:0.7rem;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:var(--accent-hi);margin-bottom:4px">Fixed Assumptions</div>
+                <div id="kelly-assumptions" style="font-size:0.92rem;font-variant-numeric:tabular-nums">Win Rate: 55.794% &middot; Loss Rate: 44.206%</div>
+            </div>
+
+            <div class="input-group">
+                <label for="bankroll">Current Bankroll ($)</label>
+                <input type="number" id="bankroll" placeholder="Enter your total bankroll" min="1" step="0.01">
+            </div>
+
+            <div class="input-group">
+                <label for="numBets">Number of Bets</label>
+                <input type="number" id="numBets" placeholder="Enter number of bets" min="1" max="50" value="14">
+            </div>
+
+            <div class="input-group">
+                <label for="odds">Betting Odds (American, e.g. -110)</label>
+                <input type="number" id="odds" placeholder="-110" value="-110">
+            </div>
+
+            <button class="calc-btn" onclick="calculateKelly()">Calculate Optimal Bet Size</button>
+
+            <div class="calc-results" id="kellyPerBetSection">
+                <h3 style="text-align:center;margin-bottom:14px;font-size:0.8rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--text-dim)">Per Bet Allocation</h3>
+                <div class="result-row">
+                    <span class="result-label">Base Amount Per Bet</span>
+                    <span class="result-value" id="basePerBet">&ndash;</span>
+                </div>
+            </div>
+
+            <div class="calc-results" id="kellyResultsContainer">
+                <h3 style="text-align:center;margin-bottom:14px;font-size:0.8rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--text-dim)">Kelly Results</h3>
+                <div class="result-row">
+                    <span class="result-label">Kelly Percentage</span>
+                    <span class="result-value" id="kellyPercentage">&ndash;</span>
+                </div>
+                <div class="result-row">
+                    <span class="result-label">Kelly Bet Size (per bet)</span>
+                    <span class="result-value" id="betSize">&ndash;</span>
+                </div>
+                <div class="result-row highlight">
+                    <span class="result-label"><strong>Conservative (½ Kelly)</strong></span>
+                    <span class="result-value" id="conservativeBet">&ndash;</span>
+                </div>
+                <div class="result-row highlight-blue">
+                    <span class="result-label"><strong>Ultra Conservative (¼ Kelly)</strong></span>
+                    <span class="result-value" id="ultraConservativeBet">&ndash;</span>
+                </div>
+                <div class="result-row">
+                    <span class="result-label">Total Risk (Full Kelly)</span>
+                    <span class="result-value" id="totalRisk">&ndash;</span>
+                </div>
+            </div>
+
+            <div class="highlight-box warning" style="font-size:0.88rem">
+                <strong>Important:</strong> The Kelly Criterion assumes your season win rate as probability.
+                Consider using fractional Kelly (½ or ¼) to reduce volatility and protect against
+                estimation errors. Never bet more than you can afford to lose.
+            </div>
+        </div>
+
+        <!-- ═══ Profit/Loss Calculator ═══ -->
+        <div class="calculator-card">
+            <h2>Profit / Loss</h2>
+            <p class="calc-subtitle">See projected returns based on current record</p>
+
+            <div id="pl-record" style="text-align:center;margin-bottom:22px;color:var(--text-dim);font-size:0.92rem;font-variant-numeric:tabular-nums">
+                Loading records&hellip;
+            </div>
+
+            <div class="input-group">
+                <label for="betAmount">Bet Amount Per Game ($)</label>
+                <input type="number" id="betAmount" placeholder="Enter $ amount per bet" min="0.01" step="any">
+            </div>
+
+            <button class="calc-btn" onclick="calculatePL()">Calculate Profit/Loss</button>
+
+            <div class="calc-results" id="plResults">
+                <h3 style="text-align:center;margin-bottom:14px;font-size:0.8rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--text-dim)">Projected Returns</h3>
+                <div class="result-row">
+                    <span class="result-label">All Spreads</span>
+                    <span class="result-value" id="plAllSpreads">&ndash;</span>
+                </div>
+                <div class="result-row">
+                    <span class="result-label">Above Median</span>
+                    <span class="result-value" id="plAboveMedian">&ndash;</span>
+                </div>
+                <div class="result-row">
+                    <span class="result-label">Top 5</span>
+                    <span class="result-value" id="plTop5">&ndash;</span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>&copy; 2026 RoachFinder</p>
+        <a href="index.html">Home</a>
+        <a href="about.html">About</a>
+        <a href="current-week.html">Current Week</a>
+        <a href="history.html">History</a>
+        <a href="calculator.html">Calculator</a>
+    </footer>
+
+    <script src="main.js"></script>
+    <script>
+        // ── State: loaded from season_record.json ──
+        let winProb = 0.55794;
+        let lossProb = 0.44206;
+        let recordData = null;
+
+        // ── Load season data on page load ──
+        document.addEventListener("DOMContentLoaded", async function () {
+            const data = await fetchJSON("data/season_record.json");
+            if (data && data.cumulative) {
+                recordData = data.cumulative;
+
+                const as = recordData.all_spreads;
+                const am = recordData.above_median;
+                const t5 = recordData.top_5;
+
+                const total = as.wins + as.losses;
+                if (total > 0) {
+                    winProb = as.wins / total;
+                    lossProb = 1 - winProb;
+                    document.getElementById("kelly-assumptions").textContent =
+                        `Win Rate: ${(winProb * 100).toFixed(3)}% · Loss Rate: ${(lossProb * 100).toFixed(3)}%`;
+                }
+
+                document.getElementById("pl-record").innerHTML =
+                    `<div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap">` +
+                    `<span class="game-detail">All Spreads <strong>${as.wins}-${as.losses}</strong></span>` +
+                    `<span class="game-detail">Above Median <strong>${am.wins}-${am.losses}</strong></span>` +
+                    `<span class="game-detail">Top 5 <strong>${t5.wins}-${t5.losses}</strong></span>` +
+                    `</div>`;
+            } else {
+                document.getElementById("pl-record").innerHTML =
+                    "No season data yet. Run some weeks first.";
+            }
+        });
+
+        // ── Kelly Calculator ──
+        function calculateKelly() {
+            const bankroll = parseFloat(document.getElementById("bankroll").value);
+            const numBets = parseInt(document.getElementById("numBets").value);
+            const odds = parseFloat(document.getElementById("odds").value);
+
+            if (!bankroll || !numBets || !odds) {
+                alert("Please fill in all fields");
+                return;
+            }
+            if (bankroll <= 0 || numBets <= 0) {
+                alert("Please enter positive values");
+                return;
+            }
+
+            // Convert American odds to decimal
+            let decimalOdds;
+            if (odds > 0) {
+                decimalOdds = (odds / 100) + 1;
+            } else {
+                decimalOdds = (100 / Math.abs(odds)) + 1;
+            }
+
+            // Kelly: f = (bp - q) / b
+            const b = decimalOdds - 1;
+            const kellyFraction = (b * winProb - lossProb) / b;
+
+            const basePerBet = bankroll / numBets;
+
+            let kellyBetSize = bankroll * Math.abs(kellyFraction);
+            let capped = false;
+            if (kellyBetSize > bankroll) {
+                kellyBetSize = bankroll;
+                capped = true;
+            }
+
+            const conserve = kellyBetSize * 0.5;
+            const ultra = kellyBetSize * 0.25;
+            const totalRisk = kellyBetSize * numBets;
+
+            document.getElementById("basePerBet").textContent = "$" + basePerBet.toFixed(2);
+            document.getElementById("kellyPercentage").textContent = (kellyFraction * 100).toFixed(2) + "%";
+            document.getElementById("betSize").textContent =
+                "$" + kellyBetSize.toFixed(2) + (capped ? " (capped)" : "");
+            document.getElementById("conservativeBet").textContent = "$" + conserve.toFixed(2);
+            document.getElementById("ultraConservativeBet").textContent = "$" + ultra.toFixed(2);
+            document.getElementById("totalRisk").textContent = "$" + totalRisk.toFixed(2);
+
+            document.getElementById("kellyPerBetSection").classList.add("visible");
+            document.getElementById("kellyResultsContainer").classList.add("visible");
+        }
+
+        // ── Profit/Loss Calculator ──
+        function calculatePL() {
+            const amount = parseFloat(document.getElementById("betAmount").value);
+            if (!amount || amount <= 0) {
+                alert("Please enter a valid bet amount");
+                return;
+            }
+            if (!recordData) {
+                alert("No season record data available");
+                return;
+            }
+
+            // Formula: (amount * 0.9090909 * wins) - (amount * losses)
+            const juice = 0.9090909;
+            function calc(cat) {
+                return (amount * juice * cat.wins) - (amount * cat.losses);
+            }
+
+            function formatPL(val) {
+                const color = val >= 0 ? "var(--accent-hi)" : "var(--red-hi)";
+                const sign = val >= 0 ? "+" : "";
+                return `<span style="color:${color};font-weight:700">${sign}$${val.toFixed(2)}</span>`;
+            }
+
+            document.getElementById("plAllSpreads").innerHTML = formatPL(calc(recordData.all_spreads));
+            document.getElementById("plAboveMedian").innerHTML = formatPL(calc(recordData.above_median));
+            document.getElementById("plTop5").innerHTML = formatPL(calc(recordData.top_5));
+
+            document.getElementById("plResults").classList.add("visible");
+        }
+
+        // Enter key triggers calculation
+        document.addEventListener("keypress", function (e) {
+            if (e.key === "Enter") {
+                const active = document.activeElement;
+                if (active && (active.id === "betAmount")) {
+                    calculatePL();
+                } else {
+                    calculateKelly();
+                }
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,236 @@
+# RoachFinder 3.0 — Project Context File
+_Generated for Claude Cowork. Provide this file at project creation alongside access to the original project directory._
+
+---
+
+## What This Project Is
+
+**RoachFinder** is a personal NFL spread prediction web application. Each week during the NFL regular season (Weeks 2–16 only — Week 1 and Week 17 are intentionally excluded), the pipeline:
+
+1. Scrapes NFL game data for the upcoming week
+2. Runs a Python prediction algorithm that scores each matchup with a **Confidence Factor**
+3. Displays the results on a public static website at **https://www.roachfinder.com/**
+
+The project is rebuilt from scratch each season. This is version **3.0**, targeting the **2026–2027 NFL season**.
+
+---
+
+## Tech Stack
+
+| Layer | Technology |
+|---|---|
+| Backend / Pipeline | Python (standalone scripts) |
+| Frontend | Static HTML + CSS + JavaScript (no framework) |
+| Data storage (pipeline) | **JSON files** (upgrade from CSV — see Streamlining section) |
+| Hosting | **Shared hosting via cPanel** |
+| Deployment | Manual file upload via cPanel File Manager or FTP |
+
+### Hosting Notes
+- The site is hosted on a shared cPanel server. There is no server-side Python execution at runtime — Python runs **locally** to generate output files, which are then uploaded to the host.
+- All pages are static HTML. JavaScript reads from JSON data files at runtime to populate dynamic content (picks, records, etc.).
+- File paths on the server should use relative paths to keep deployment simple.
+- The `/data/` folder of JSON files must be uploaded alongside the HTML/CSS/JS files each week.
+
+---
+
+## Live Website — Page Inventory
+
+The current live site has 5 pages. All must be preserved in the rebuild:
+
+### 1. Home (`/` → `index.html`)
+- Displays current season label (e.g., "2026-2027")
+- Three summary stat blocks:
+  - **All Spreads Record** — cumulative W/L/% for all algorithm picks
+  - **>= Median Confidence Factor Record** — cumulative W/L/% for picks above the rolling median CF
+  - **Top 5 Record** — cumulative W/L/% for the top 5 picks by CF each week
+- DraftKings affiliate CTA button
+
+### 2. Current Week (`/current-week` -> `current-week.html`)
+- Displays current NFL week number
+- **Rolling Median Confidence Factor** value
+- **Confidence Spectrum** — all picks this week listed in descending CF order with their CF value
+- **Top 5 Picks** — top 5 by CF, labeled #1-#5
+- **>= Rolling Median CF picks** — all picks at or above the median, unranked
+- **Per-game cards** for every matchup, each containing:
+  - Away Team vs Home Team
+  - Stadium name
+  - Game date and time
+  - Cheapest ticket price
+  - Sportsbook: O/U and spread (favored team + line)
+  - Algorithmic Pick: Winner, Loser, Confidence Factor
+  - **Winning Pick** label (e.g., "Patriots -13.5")
+
+### 3. History (`/history` -> `history.html`)
+- Season-level summary table per season: All Spreads, Above-Median, Top 5 (W/L/%)
+- Expandable per-week accordion for each season showing:
+  - Week number, Wins, Losses, Pushes/Double-headers, Win %
+  - Link to Google Sheets matchup results for that week
+- Multiple seasons supported (currently 2024-25 and 2025-26, will add 2026-27)
+
+### 4. About (`/about` -> `about.html`)
+- Mission statement
+- How-to instructions (fixed-unit betting, same # of games per week)
+- Kelly Criterion Calculator explanation with formula (f = (bp - q) / b) and variable definitions
+- Recommendation to use fractional Kelly (1/2 or 1/4)
+- Roach's Disclaimer (plain text)
+- Link to external YouTube video: https://www.youtube.com/watch?v=_FuuYSM7yOo
+
+### 5. Calculator (`/calculator` -> `calculator.html`)
+- Interactive Kelly Criterion calculator (client-side JS only)
+- Inputs: current bankroll, betting odds (default: -110)
+- Uses cumulative season win rate as `p`
+- Outputs: full Kelly %, half Kelly %, quarter Kelly %, and recommended bet sizes in dollars
+
+---
+
+## Algorithm — Core Concepts (DO NOT MODIFY)
+
+These must be preserved **exactly** as implemented in the original Python predictor. Do not alter the math.
+
+### Confidence Factor
+- A numeric score computed per matchup
+- Higher = more confident the algorithm's pick will cover the spread
+- Formula lives in the original predictor Python file — copy it verbatim
+
+### Rolling Median Confidence Factor
+- The **median** of all Confidence Factor values across all picks in the current season to date (not just current week)
+- Updates each week as new picks are added
+- Used as the threshold for "Above Median" picks
+
+### Pick Categories
+| Category | Definition |
+|---|---|
+| All Spreads | Every pick the algorithm makes (Weeks 2-16) |
+| Above Median | Picks with CF >= Rolling Median CF |
+| Top 5 | The 5 picks with the highest CF each week |
+
+### Season Scope
+- **Active weeks:** 2 through 16
+- **Excluded:** Week 1 and Week 17 (by design — do not change this)
+- Season label format: `YYYY-YY` (e.g., "2026-27") for short form, `YYYY-YYYY` for long form
+
+---
+
+## Data Per Game (what the scraper must collect)
+
+Each game record needs the following fields:
+
+**From scraper:**
+- `away_team` — team name (string)
+- `home_team` — team name (string)
+- `stadium` — full stadium name + city, state
+- `game_time` — date + time string (e.g., "Sunday 1:00 PM ET")
+- `cheapest_ticket` — dollar amount (integer)
+- `over_under` — float (e.g., 50.5)
+- `spread_line` — float (e.g., -13.5 from the favored team's perspective)
+- `favored_team` — team name of the favored team
+
+**From predictor (added after algorithm runs):**
+- `pick_winner` — team the algorithm predicts will cover
+- `pick_loser` — the other team
+- `confidence_factor` — float, 2+ decimal places
+- `winning_pick_label` — formatted string, e.g., "Patriots -13.5" or "Chiefs +13.5"
+
+---
+
+## Season Record Tracking
+
+The app must track and persist results week-over-week in `data/season_record.json`.
+
+For each completed week, record:
+- Which pick was made (team + line)
+- Result: `win`, `loss`, or `push`
+- Category flags: was it Above Median? Was it a Top 5 pick?
+
+Cumulative records (W/L/%) for All Spreads, Above Median, and Top 5 are calculated from this data and displayed on Home and History pages.
+
+Results are entered **manually** after each week's games complete (the algorithm does not auto-update results). The rebuild should include a simple way to enter results — either a CLI script (`enter_results.py`) or a clearly documented process for editing the JSON directly.
+
+---
+
+## Streamlining Goals (Original -> 3.0)
+
+The original project used CSV files and had multiple manual steps. The 3.0 rebuild should:
+
+| Problem in original | Fix in 3.0 |
+|---|---|
+| CSV files as intermediate data format | JSON throughout — one format, one `/data/` folder |
+| Multiple scripts run in unclear order | Single `run_week.py` entry point: scrape -> predict -> write JSON |
+| Manual copy-paste of data into HTML | JS reads `/data/current_week.json` at page load |
+| Season rollover requires touching many files | Single `config.py` with season year, week range, and constants |
+| Redundant/leftover scripts | Clean slate — only files that serve a purpose |
+
+### Target Directory Structure
+
+```
+F:\CodeProjects\RoachFinder_3.0_2026_ClaudeBuild\
+|-- config.py                  # Season year, week range, affiliate link, etc.
+|-- scraper.py                 # Fetches raw weekly game data -> data/raw_week_XX.json
+|-- predictor.py               # Runs algorithm -> data/current_week.json
+|-- run_week.py                # Entry point: runs scraper then predictor
+|-- enter_results.py           # CLI tool to record W/L/push for completed weeks
+|
+|-- data/
+|   |-- current_week.json      # This week's picks + game info (generated by predictor)
+|   |-- season_record.json     # All weeks' results + cumulative W/L by category
+|   `-- history.json           # Prior seasons' records (manually maintained per season)
+|
+`-- site/
+    |-- index.html
+    |-- current-week.html
+    |-- history.html
+    |-- about.html
+    |-- calculator.html
+    |-- style.css
+    |-- main.js                # Shared JS utilities
+    |-- current-week.js        # Fetches + renders current_week.json
+    |-- history.js             # Fetches + renders season_record.json + history.json
+    `-- data/                  # Copy of root /data/ — uploaded to server each week
+```
+
+### Deployment Workflow (each week)
+1. Run `python run_week.py` locally — generates `data/current_week.json`
+2. After games complete, run `python enter_results.py` — updates `data/season_record.json`
+3. Copy updated `/data/` files into `site/data/`
+4. Upload the `site/` folder to cPanel via File Manager or FTP
+5. Done — no server-side build step, no database, no Node.js
+
+---
+
+## Design & Branding (from live site)
+
+- Site name: **The Roach Finder** (header), "RoachFinder" in URLs and code
+- Navigation: Top nav bar + hamburger mobile menu — Home, About, Current Week, History, Calculator
+- Footer: Repeats nav links + copyright line
+- Dark background, high-contrast text — match the original CSS as closely as possible
+- DraftKings affiliate link: `https://sportsbook.draftkings.com/r/sb/roachjohnson/US-IL-SB`
+  - CTA: "Join DraftKings" with sub-text about profit boosts
+
+---
+
+## Reference: Original Project Directory
+
+The original project is provided as read-only context. Key things to extract from it:
+- **Confidence Factor formula** — copy the math verbatim from the predictor script
+- **Data sources / APIs the scraper uses** — preserve these (do not break working data sources)
+- **What stats/inputs feed into the algorithm** — document these in `predictor.py` comments
+- **Existing season record data** — migrate into the new `history.json` format
+
+**Do not carry over bugs, redundant scripts, CSV handling, or any manual HTML-editing steps.**
+
+---
+
+## Important Constants (update each season)
+
+These live in `config.py`:
+
+```python
+SEASON_LABEL = "2026-27"           # Short label
+SEASON_LABEL_LONG = "2026-2027"    # Long label for display
+CURRENT_SEASON_START_YEAR = 2026
+ACTIVE_WEEKS = range(2, 17)        # Weeks 2-16 inclusive
+DRAFTKINGS_AFFILIATE_URL = "https://sportsbook.draftkings.com/r/sb/roachjohnson/US-IL-SB"
+```
+
+---
+_Last updated: April 2026 | Target season: 2026-2027 NFL_

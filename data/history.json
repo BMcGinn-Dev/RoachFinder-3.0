@@ -1,0 +1,90 @@
+{
+  "seasons": [
+    {
+      "label": "2024-25",
+      "label_long": "2024-2025",
+      "summary": {
+        "all_spreads": { "wins": 0, "losses": 0, "pushes": 0, "win_pct": 0.0 },
+        "above_median": { "wins": 0, "losses": 0, "pushes": 0, "win_pct": 0.0 },
+        "top_5": { "wins": 0, "losses": 0, "pushes": 0, "win_pct": 0.0 }
+      },
+      "weeks": {}
+    },
+    {
+      "label": "2025-26",
+      "label_long": "2025-2026",
+      "summary": {
+        "all_spreads": { "wins": 60, "losses": 73, "pushes": 3, "win_pct": 45.113 },
+        "above_median": { "wins": 28, "losses": 32, "pushes": 2, "win_pct": 46.67 },
+        "top_5": { "wins": 21, "losses": 24, "pushes": 2, "win_pct": 46.67 }
+      },
+      "weeks": {
+        "2": {
+          "wins": 7, "losses": 9, "pushes": 0,
+          "win_pct": 43.75,
+          "results_url": "https://docs.google.com/spreadsheets/d/1PLhZaIp5t4h8n2id8iUm7IOoXE5lG4o3zyZAOT_q1mg/edit?gid=946029461#gid=946029461"
+        },
+        "3": {
+          "wins": 5, "losses": 10, "pushes": 1,
+          "win_pct": 33.33,
+          "results_url": "https://docs.google.com/spreadsheets/d/1PLhZaIp5t4h8n2id8iUm7IOoXE5lG4o3zyZAOT_q1mg/edit?gid=946029461#gid=946029461"
+        },
+        "4": {
+          "wins": 4, "losses": 10, "pushes": 0,
+          "win_pct": 28.57,
+          "results_url": "https://docs.google.com/spreadsheets/d/1PLhZaIp5t4h8n2id8iUm7IOoXE5lG4o3zyZAOT_q1mg/edit?gid=946029461#gid=946029461"
+        },
+        "5": {
+          "wins": 6, "losses": 7, "pushes": 1,
+          "win_pct": 46.15,
+          "results_url": "https://docs.google.com/spreadsheets/d/1PLhZaIp5t4h8n2id8iUm7IOoXE5lG4o3zyZAOT_q1mg/edit?gid=946029461#gid=946029461"
+        },
+        "6": {
+          "wins": 2, "losses": 5, "pushes": 0,
+          "win_pct": 28.57,
+          "results_url": "https://docs.google.com/spreadsheets/d/1PLhZaIp5t4h8n2id8iUm7IOoXE5lG4o3zyZAOT_q1mg/edit?gid=946029461#gid=946029461"
+        },
+        "7": {
+          "wins": 5, "losses": 2, "pushes": 0,
+          "win_pct": 71.43,
+          "results_url": "https://docs.google.com/spreadsheets/d/1PLhZaIp5t4h8n2id8iUm7IOoXE5lG4o3zyZAOT_q1mg/edit?gid=946029461#gid=946029461"
+        },
+        "8": {
+          "wins": 4, "losses": 4, "pushes": 0,
+          "win_pct": 50.0,
+          "results_url": "https://docs.google.com/spreadsheets/d/1PLhZaIp5t4h8n2id8iUm7IOoXE5lG4o3zyZAOT_q1mg/edit?gid=946029461#gid=946029461"
+        },
+        "9": {
+          "wins": 5, "losses": 3, "pushes": 0,
+          "win_pct": 62.5,
+          "results_url": "https://docs.google.com/spreadsheets/d/1PLhZaIp5t4h8n2id8iUm7IOoXE5lG4o3zyZAOT_q1mg/edit?gid=946029461#gid=946029461"
+        },
+        "10": {
+          "wins": 3, "losses": 4, "pushes": 0,
+          "win_pct": 42.86,
+          "results_url": "https://docs.google.com/spreadsheets/d/1PLhZaIp5t4h8n2id8iUm7IOoXE5lG4o3zyZAOT_q1mg/edit?gid=946029461#gid=946029461"
+        },
+        "11": {
+          "wins": 3, "losses": 4, "pushes": 0,
+          "win_pct": 42.86,
+          "results_url": "https://docs.google.com/spreadsheets/d/1PLhZaIp5t4h8n2id8iUm7IOoXE5lG4o3zyZAOT_q1mg/edit?gid=946029461#gid=946029461"
+        },
+        "12": {
+          "wins": 5, "losses": 3, "pushes": 1,
+          "win_pct": 62.5,
+          "results_url": "https://docs.google.com/spreadsheets/d/1PLhZaIp5t4h8n2id8iUm7IOoXE5lG4o3zyZAOT_q1mg/edit?gid=946029461#gid=946029461"
+        },
+        "14": {
+          "wins": 5, "losses": 8, "pushes": 0,
+          "win_pct": 38.46,
+          "results_url": "https://docs.google.com/spreadsheets/d/1PLhZaIp5t4h8n2id8iUm7IOoXE5lG4o3zyZAOT_q1mg/edit?gid=946029461#gid=946029461"
+        },
+        "15": {
+          "wins": 6, "losses": 4, "pushes": 0,
+          "win_pct": 60.0,
+          "results_url": "https://docs.google.com/spreadsheets/d/1PLhZaIp5t4h8n2id8iUm7IOoXE5lG4o3zyZAOT_q1mg/edit?gid=946029461#gid=946029461"
+        }
+      }
+    }
+  ]
+}
