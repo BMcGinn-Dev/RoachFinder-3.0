@@ -548,9 +548,13 @@ a:hover { color: var(--accent); }
     margin-bottom: 8px;
     position: relative;
     min-height: 34px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 
 .spectrum-bar {
+    flex-shrink: 0;
     border-radius: 4px;
     padding: 6px 12px;
     height: 34px;
@@ -567,10 +571,6 @@ a:hover { color: var(--accent); }
 }
 
 .spectrum-label-outside {
-    position: absolute;
-    left: calc(100% + 10px);
-    top: 50%;
-    transform: translateY(-50%);
     color: var(--text-dim);
     font-weight: 600;
     font-size: 0.8rem;
