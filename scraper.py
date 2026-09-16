@@ -65,10 +65,12 @@ def _scrape_nfl_stat_page(side: str, category: str, url_segment: str, year: int)
     if table is None:
         raise RuntimeError(f"Could not find stats table at {url}")
 
-    # Separate header row and body rows (skip empty tags)
-    good_sections = [tag for tag in table if len(tag) > 1]
-    header_section = good_sections[0]
-    body_section = good_sections[1]
+    # Separate header row and body rows (look up <thead>/<tbody> directly —
+    # a length-based filter breaks whenever the header row count changes)
+    header_section = table.find("thead")
+    body_section = table.find("tbody")
+    if header_section is None or body_section is None:
+        raise RuntimeError(f"Could not find thead/tbody in stats table at {url}")
 
     # ── Extract column headers ──
     raw_headers = [th.text.strip() for th in header_section.find_all("th")]
@@ -143,10 +145,37 @@ def scrape_all_stats(year: int = None) -> pd.DataFrame:
 #  ESPN Matchups Scraper  (replaces GetMatchups.py)
 # ═══════════════════════════════════════════════════════════════════
 
+ESPN_SCOREBOARD_API = (
+    "https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard"
+)
+
+
+def _to_eastern(iso_utc: str) -> str:
+    """Convert ESPN's UTC kickoff ('2026-09-18T00:15Z') to e.g. '8:15 PM' ET.
+    US DST rule computed by hand so no tzdata package is needed on Windows."""
+    from datetime import datetime, timedelta, timezone
+    try:
+        utc = datetime.strptime(iso_utc, "%Y-%m-%dT%H:%MZ").replace(tzinfo=timezone.utc)
+    except (ValueError, TypeError):
+        return "TBD"
+    y = utc.year
+    # DST: 2nd Sunday of March 07:00 UTC -> 1st Sunday of November 06:00 UTC
+    mar1 = datetime(y, 3, 1, tzinfo=timezone.utc)
+    dst_start = mar1 + timedelta(days=(6 - mar1.weekday()) % 7 + 7, hours=7)
+    nov1 = datetime(y, 11, 1, tzinfo=timezone.utc)
+    dst_end = nov1 + timedelta(days=(6 - nov1.weekday()) % 7, hours=6)
+    offset = -4 if dst_start <= utc < dst_end else -5
+    local = utc + timedelta(hours=offset)
+    return local.strftime("%I:%M %p").lstrip("0")
+
+
 def scrape_matchups(week: int = None, year: int = None) -> list:
     """
-    Scrape the ESPN NFL schedule page for a given week and return a list
-    of matchup dictionaries.
+    Pull the week's NFL matchups from ESPN's public scoreboard API and return
+    a list of matchup dictionaries.
+
+    (The ESPN schedule HTML page now blocks scripted requests with an empty
+    HTTP 202, so the old HTML scraper no longer works.)
 
     Each dict contains:
       away_team, home_team, away_team_short, home_team_short,
@@ -158,118 +187,87 @@ def scrape_matchups(week: int = None, year: int = None) -> list:
     if year is None:
         year = CURRENT_SEASON_START_YEAR
 
-    url = ESPN_SCHEDULE_URL.format(week=week, year=year)
-
     print(f"\n{'='*60}")
-    print(f"  Scraping ESPN matchups — Week {week}, {year}")
+    print(f"  Fetching ESPN matchups — Week {week}, {year}")
     print(f"{'='*60}")
 
-    response = requests.get(url, headers=REQUEST_HEADERS)
+    params = {"seasontype": 2, "week": week, "dates": year}
+    # No REQUEST_HEADERS here: ESPN's API returns 403 to requests that claim
+    # to be Chrome but aren't. The default python-requests User-Agent works.
+    response = requests.get(ESPN_SCOREBOARD_API, params=params, timeout=30)
     response.raise_for_status()
-
-    soup = BeautifulSoup(response.text, "html.parser")
-
-    target_class = "ScheduleTables mb5 ScheduleTables--nfl ScheduleTables--football"
-    divs = soup.find_all("div", attrs={"class": target_class})
+    if not response.text.strip():
+        raise RuntimeError(
+            f"ESPN API returned HTTP {response.status_code} with an empty body"
+        )
+    events = response.json().get("events", [])
 
     matchups = []
-    game_count = 0
+    for event in events:
+        comp = (event.get("competitions") or [{}])[0]
+        teams = {c.get("homeAway"): c.get("team", {}) for c in comp.get("competitors", [])}
+        home, away = teams.get("home"), teams.get("away")
+        if not home or not away:
+            print(f"    WARNING: Could not parse teams for: {event.get('name')}")
+            continue
 
-    for div in divs:
-        trs = div.find_all("tr")
-        trs.pop(0)  # First row is always a header — discard
+        away_team_full = away.get("displayName", "")
+        home_team_full = home.get("displayName", "")
+        away_short = away_team_full.rsplit(" ", 1)[-1]
+        home_short = home_team_full.rsplit(" ", 1)[-1]
 
-        for tr in trs:
-            # ── Parse team names from <a> tag data attributes ──
-            a_tag = tr.find("a", class_=lambda c: c and "zZygg" in c)
-            if not a_tag:
-                continue
+        # Stadium: "Highmark Stadium, Orchard Park, NY"
+        venue = comp.get("venue", {})
+        addr = venue.get("address", {})
+        stadium = ", ".join(
+            x for x in (venue.get("fullName"), addr.get("city"), addr.get("state")) if x
+        ) or "Unknown"
 
-            extras_json = a_tag.get("data-track-extras", "{}")
-            extras = json.loads(extras_json)
-            game_detail = extras.get("game_detail", "")
+        # Cheapest ticket: last 4 chars of "Tickets as low as $452"
+        tickets = comp.get("tickets") or []
+        summary = tickets[0].get("summary", "") if tickets else ""
+        cheapest_ticket = summary[-4:].strip() if summary else "N/A"
 
-            # Remove leading ID and split "TeamA vs TeamB"
-            team_part = " ".join(game_detail.split()[1:])
-            if " vs " not in team_part:
-                print(f"    WARNING: Could not parse teams from: {team_part}")
-                continue
+        # Odds: details "BUF -4.5", overUnder 54.5
+        spread_str = ""
+        over_under_str = ""
+        favored_team = ""
+        spread_amount = 0.0
+        odds = (comp.get("odds") or [{}])[0]
+        details = (odds.get("details") or "").strip()
+        if details:
+            spread_str = details
+            parts = details.rsplit(" ", 1)
+            if len(parts) == 2:
+                try:
+                    spread_amount = float(parts[1])
+                    favored_team = parts[0].strip()
+                except ValueError:
+                    spread_amount = 0.0   # e.g. "EVEN"
+        ou = odds.get("overUnder")
+        if ou is not None:
+            over_under_str = f"{float(ou):g}"
 
-            away_team_full, home_team_full = team_part.split(" vs ")
-            away_short = away_team_full.rsplit(" ", 1)[-1]
-            home_short = home_team_full.rsplit(" ", 1)[-1]
+        matchup = {
+            "week_number": week,
+            "away_team": away_team_full,
+            "home_team": home_team_full,
+            "away_team_short": away_short,
+            "home_team_short": home_short,
+            "away_team_city": away.get("location", ""),
+            "home_team_city": home.get("location", ""),
+            "game_time": _to_eastern(event.get("date", "")),
+            "cheapest_ticket": cheapest_ticket,
+            "stadium": stadium,
+            "spread_line": spread_str,
+            "over_under": over_under_str,
+            "favored_team": favored_team,
+            "spread_amount": spread_amount,
+        }
+        matchups.append(matchup)
+        print(f"    Game {len(matchups)}: {away_short} @ {home_short}  {spread_str}")
 
-            # ── Parse table cell values ──
-            td_values = []
-            for td in tr.find_all("td"):
-                text = td.text.strip()
-                if text:
-                    td_values.append(text)
-                else:
-                    td_values.append("DNF")
-
-            # td_values layout (after ESPN's HTML):
-            #   [0] Away city display, [1] Home city display (with prefix),
-            #   [2] Time, [3] ???, [4] Ticket (last 4 chars), [5] Stadium,
-            #   [6] "Line: XXX O/U: YYY"
-
-            # Fix home team city — strip first 5 chars (ESPN prefix artifact)
-            if len(td_values) > 1:
-                td_values[1] = td_values[1][5:] if len(td_values[1]) > 5 else td_values[1]
-
-            # Extract cheapest ticket (last 4 chars of the ticket cell)
-            cheapest_ticket = "N/A"
-            if len(td_values) > 4:
-                cheapest_ticket = td_values[4][-4:].strip()
-
-            # Parse spread and over/under from combined field
-            spread_str = ""
-            over_under_str = ""
-            favored_team = ""
-            spread_amount = 0.0
-
-            if len(td_values) > 6:
-                combined = td_values[6]
-                line_part, _, ou_part = combined.partition("O/U:")
-                line_part = line_part.replace("Line:", "").strip()
-                over_under_str = ou_part.strip()
-                spread_str = line_part
-
-                # Parse "KC -3" into team abbr and spread number
-                if spread_str and spread_str != "DNF":
-                    spread_parts = spread_str.rsplit(" ", 1)
-                    if len(spread_parts) == 2:
-                        favored_team = spread_parts[0].strip()
-                        try:
-                            spread_amount = float(spread_parts[1])
-                        except ValueError:
-                            spread_amount = 0.0
-
-            stadium = td_values[5] if len(td_values) > 5 else "Unknown"
-            game_time = td_values[2] if len(td_values) > 2 else "TBD"
-
-            matchup = {
-                "week_number": week,
-                "away_team": away_team_full,
-                "home_team": home_team_full,
-                "away_team_short": away_short,
-                "home_team_short": home_short,
-                "away_team_city": td_values[0] if td_values else "",
-                "home_team_city": td_values[1] if len(td_values) > 1 else "",
-                "game_time": game_time,
-                "cheapest_ticket": cheapest_ticket,
-                "stadium": stadium,
-                "spread_line": spread_str,
-                "over_under": over_under_str,
-                "favored_team": favored_team,
-                "spread_amount": spread_amount,
-            }
-
-            matchups.append(matchup)
-            game_count += 1
-            print(f"    Game {game_count}: {away_short} @ {home_short}")
-
-    print(f"\n  Total matchups scraped: {game_count}")
+    print(f"\n  Total matchups: {len(matchups)}")
     return matchups
 
 
