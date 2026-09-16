@@ -1,0 +1,298 @@
+<title>Inside Escanor</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+:root{
+  color-scheme: dark;
+  --bg-0:#05070d; --bg-1:#0a0e16; --bg-elev:#121824; --bg-hi:#1a2030;
+  --line:rgba(148,163,184,.12); --line-strong:rgba(148,163,184,.24);
+  --text:#e6edf5; --dim:#94a3b8; --muted:#64748b;
+  --green:#22c55e; --green-hi:#4ade80; --gold:#eab308; --red:#f87171; --blue:#60a5fa;
+  --pass:#60a5fa; --rush:#f59e0b; --rec:#a78bfa; --downs:#22c55e;
+  --mono: 'JetBrains Mono', ui-monospace, Consolas, monospace;
+}
+*{box-sizing:border-box}
+body{background:var(--bg-0);color:var(--text);font-family:'Inter',-apple-system,'Segoe UI',sans-serif;font-size:15px;line-height:1.6;
+  background-image:radial-gradient(ellipse 80% 40% at 50% -5%,rgba(34,197,94,.10),transparent 70%);}
+.wrap{max-width:900px;margin:0 auto;padding-inline:20px;padding-block:48px 80px}
+h1,h2,h3{text-wrap:balance;line-height:1.2;margin:0}
+h1{font-size:clamp(2rem,5vw,2.9rem);font-weight:800;letter-spacing:-.03em}
+h2{font-size:1.5rem;font-weight:700;letter-spacing:-.02em}
+h3{font-size:1.02rem;font-weight:700}
+p{margin:0;max-width:68ch;color:var(--dim)}
+p strong,li strong{color:var(--text)}
+.eyebrow{font-size:.72rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--green-hi)}
+.mono,code,.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+code{font-size:.85em;background:var(--bg-hi);padding:1px 6px;border-radius:4px;color:var(--text)}
+header{display:grid;gap:14px;margin-bottom:44px}
+header p{font-size:1.05rem}
+section{display:grid;gap:18px;padding-block:36px;border-top:1px solid var(--line)}
+.part{margin-top:24px;padding:10px 0 0;display:grid;gap:6px}
+.part .eyebrow{color:var(--gold)}
+.part h2{font-size:1.9rem}
+
+/* pipeline */
+.pipe{display:grid;gap:0;counter-reset:s}
+.step{display:grid;grid-template-columns:44px 1fr;gap:14px;position:relative;padding-bottom:18px}
+.step:not(:last-child)::before{content:"";position:absolute;left:21px;top:40px;bottom:0;width:2px;background:var(--line-strong)}
+.dot{width:44px;height:44px;border-radius:50%;border:2px solid var(--green);display:grid;place-items:center;font-family:var(--mono);font-weight:600;color:var(--green-hi);background:var(--bg-1)}
+.step .body{background:var(--bg-elev);border:1px solid var(--line);border-radius:8px;padding:14px 16px;display:grid;gap:6px}
+.step .body p{font-size:.93rem}
+.formula{font-family:var(--mono);font-size:.85rem;color:var(--text);background:var(--bg-1);border:1px solid var(--line);border-radius:6px;padding:8px 10px;overflow-x:auto;white-space:nowrap}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-size:.75rem;font-weight:600;padding:3px 9px;border-radius:999px;border:1px solid var(--line-strong);color:var(--text)}
+.chip i{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:6px;font-style:normal}
+
+/* weight chart */
+.panel{background:var(--bg-elev);border:1px solid var(--line);border-radius:10px;padding:18px}
+.wlist{display:grid;gap:7px}
+.wrow{display:grid;grid-template-columns:minmax(120px,190px) 1fr 52px;gap:10px;align-items:center;font-size:.84rem}
+.wrow .lbl{color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.track{height:14px;background:var(--bg-1);border-radius:3px;overflow:hidden}
+.bar{height:100%;border-radius:3px}
+.wrow .num{text-align:right;color:var(--dim)}
+.flag{color:var(--red);font-weight:700}
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:.78rem;color:var(--dim);margin-top:12px}
+.legend span::before{content:"";display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:-1px;background:var(--c)}
+
+/* tables */
+.tbl{overflow-x:auto;border:1px solid var(--line);border-radius:8px}
+table{border-collapse:collapse;width:100%;font-size:.84rem;min-width:560px}
+th,td{padding:8px 12px;text-align:right;border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums}
+th{font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:700;background:var(--bg-1)}
+td:first-child,th:first-child{text-align:left}
+td{font-family:var(--mono)}
+td:first-child{font-family:inherit;color:var(--text)}
+tr:last-child td{border-bottom:0}
+.hi{color:var(--green-hi);font-weight:600}
+.bad{color:var(--red);font-weight:600}
+
+/* matchup duel */
+.duel{display:grid;gap:10px}
+.drow{display:grid;grid-template-columns:1fr 92px 1fr;align-items:center;gap:10px;font-size:.82rem}
+.drow .side{display:flex;align-items:center;gap:8px}
+.drow .side.l{justify-content:flex-end}
+.drow .mid{text-align:center;color:var(--dim);font-weight:600;font-size:.75rem;text-transform:uppercase;letter-spacing:.06em}
+.hbar{height:18px;border-radius:3px}
+.drow .v{font-family:var(--mono);color:var(--text);min-width:44px}
+.drow .side.l .v{text-align:right}
+.dhead{display:grid;grid-template-columns:1fr 92px 1fr;gap:10px;font-weight:700}
+.dhead div:first-child{text-align:right}
+.total{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;padding-top:12px;border-top:1px solid var(--line);font-family:var(--mono)}
+.total b{color:var(--green-hi)}
+
+.callout{border-left:3px solid var(--gold);background:rgba(234,179,8,.06);padding:12px 16px;border-radius:0 8px 8px 0;display:grid;gap:6px}
+.callout.red{border-color:var(--red);background:rgba(248,113,113,.06)}
+.callout p{font-size:.93rem}
+
+/* fixes */
+.fixes{display:grid;gap:12px}
+.fix{display:grid;grid-template-columns:auto 1fr;gap:14px;background:var(--bg-elev);border:1px solid var(--line);border-radius:10px;padding:16px}
+.impact{align-self:start;font-size:.68rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;padding:4px 8px;border-radius:4px;white-space:nowrap}
+.impact.h{background:rgba(248,113,113,.14);color:var(--red)}
+.impact.m{background:rgba(234,179,8,.14);color:var(--gold)}
+.impact.l{background:rgba(96,165,250,.14);color:var(--blue)}
+.fix .body{display:grid;gap:8px}
+.fix p{font-size:.93rem}
+ol.plan{margin:0;padding-left:1.2em;color:var(--dim);display:grid;gap:8px;max-width:68ch}
+footer{margin-top:32px;font-size:.8rem;color:var(--muted)}
+@media (max-width:560px){
+  .wrow{grid-template-columns:110px 1fr 44px;font-size:.78rem}
+  .drow,.dhead{grid-template-columns:1fr 70px 1fr}
+  .fix{grid-template-columns:1fr}
+}
+</style>
+
+<div class="wrap">
+<header>
+  <span class="eyebrow">RoachFinder 3.0 · predictor.py</span>
+  <h1>Inside Escanor</h1>
+  <p>How the algorithm turns 13 pages of NFL.com team stats into a weekly pick against the spread, traced with the real Week 2, 2026 numbers. Part 2 covers where it goes wrong and what would make it more accurate.</p>
+</header>
+
+<div class="part"><span class="eyebrow">Part 1</span><h2>The thought process</h2></div>
+
+<section>
+  <h2>The pipeline, per game</h2>
+  <p>Escanor asks one question for every matchup: <strong>whose offense has the bigger edge over the opposing defense?</strong> It scores both teams the same way and picks the higher total.</p>
+  <div class="pipe">
+    <div class="step"><div class="dot">1</div><div class="body">
+      <h3>Load season-to-date team stats</h3>
+      <p>Offense and defense stats for all 32 teams, pulled from NFL.com (109 columns). These are season totals and averages; nothing about injuries, weather or the betting line is used here.</p>
+    </div></div>
+    <div class="step"><div class="dot">2</div><div class="body">
+      <h3>Match each offense against the other team's defense</h3>
+      <p>For every stat, divide what the offense does by what the opposing defense allows. Done twice: away offense vs home defense, and home offense vs away defense.</p>
+      <div class="formula">ratio = offense stat ÷ opposing defense's allowed stat</div>
+      <p>Downs is the exception: offense conversion % ÷ (100 − defense's allowed conversion %), i.e. against the defense's <em>stop</em> rate.</p>
+    </div></div>
+    <div class="step"><div class="dot">3</div><div class="body">
+      <h3>Blend ratios into four category scores</h3>
+      <p>Each category is a weighted sum of its ratios. A team that exactly matches the defense on everything scores about 100 per category.</p>
+      <div class="chips">
+        <span class="chip"><i style="background:var(--pass)"></i>Passing: Cmp% 25 · Rate 35 · 1st% 10 · Sacks 15 · Yds/Att 20</span>
+        <span class="chip"><i style="background:var(--rush)"></i>Rushing: YPC 40 · TDs 15 · 1st% 20 · Yards 25</span>
+        <span class="chip"><i style="background:var(--rec)"></i>Receiving: Yds/Rec 50 · TDs 15 · 1st% 35</span>
+        <span class="chip"><i style="background:var(--downs)"></i>Downs: 3rd 80 · 4th 20</span>
+      </div>
+    </div></div>
+    <div class="step"><div class="dot">4</div><div class="body">
+      <h3>Weight the categories into one team total</h3>
+      <div class="formula">total = 0.33·Passing + 0.22·Rushing + 0.18·Receiving + 0.27·Downs</div>
+    </div></div>
+    <div class="step"><div class="dot">5</div><div class="body">
+      <h3>Pick the higher total; the gap is the Confidence Factor</h3>
+      <div class="formula">pick = max(away_total, home_total)   CF = |away_total − home_total|</div>
+      <p>This is a straight-up winner pick. The spread is attached afterward as a label: if the pick is the favorite it shows <code>−4.5</code>, otherwise <code>+4.5</code>.</p>
+    </div></div>
+    <div class="step"><div class="dot">6</div><div class="body">
+      <h3>Rank the week</h3>
+      <p>Games are sorted by CF. The top 5 become <strong>Top 5</strong>; every game at or above the season's rolling median CF (19.39 this week) becomes <strong>Above Median</strong>.</p>
+    </div></div>
+  </div>
+</section>
+
+<section>
+  <h2>What Escanor actually cares about</h2>
+  <p>Multiply each stat's sub-weight by its category weight and you get its real share of a team's total. One stat, 3rd-down conversion, carries almost as much weight as all of rushing combined (21.6 vs 22.0).</p>
+  <div class="panel">
+    <div class="wlist" id="wlist"></div>
+    <div class="legend">
+      <span style="--c:var(--pass)">Passing 34.7</span><span style="--c:var(--rush)">Rushing 22.0</span><span style="--c:var(--rec)">Receiving 18.0</span><span style="--c:var(--downs)">Downs 27.0</span>
+    </div>
+  </div>
+  <p>Passing sub-weights add to 105, not 100, so passing is really 34.7% of the total, not 33%. Sacks are marked red: see Part 2.</p>
+</section>
+
+<section>
+  <h2>Worked example: Panthers @ Falcons</h2>
+  <p>This week's highest-confidence pick (<strong>Panthers −2.5, CF 72.9</strong>). Each row is one ratio; above 1.0 means the offense outperforms what that defense allows.</p>
+  <div class="tbl"><table>
+    <thead><tr><th>Stat</th><th>Panthers off. ÷ Falcons def.</th><th>Falcons off. ÷ Panthers def.</th></tr></thead>
+    <tbody>
+      <tr><td>Passing Cmp %</td><td>60.5 ÷ 58.5 = 1.03</td><td>54.6 ÷ 72.4 = 0.75</td></tr>
+      <tr><td>Passer rating</td><td>107.5 ÷ 81.4 = 1.32</td><td>51.9 ÷ 124.1 = 0.42</td></tr>
+      <tr><td>Pass 1st-down %</td><td class="hi">1.83</td><td>0.41</td></tr>
+      <tr><td>Sacks (allowed ÷ made)</td><td>2 ÷ 2 = 1.00</td><td class="bad">4 ÷ 2 = 2.00</td></tr>
+      <tr><td>Yards / attempt</td><td class="hi">1.76</td><td>0.70</td></tr>
+      <tr><td>Yards / carry</td><td class="hi">2.04</td><td>0.52</td></tr>
+      <tr><td>Rushing TDs</td><td class="bad">2 ÷ 0 → 2.00 (fallback)</td><td>0 ÷ 6 = 0.00</td></tr>
+      <tr><td>Rush 1st-down %</td><td>1.59</td><td>1.03</td></tr>
+      <tr><td>Rush yards</td><td class="hi">2.16</td><td>0.41</td></tr>
+      <tr><td>Yards / reception</td><td>1.71</td><td>0.93</td></tr>
+      <tr><td>Receiving TDs</td><td class="bad">3 ÷ 1 = 3.00</td><td>1 ÷ 2 = 0.50</td></tr>
+      <tr><td>Rec 1st-down %</td><td>1.77</td><td>0.54</td></tr>
+      <tr><td>3rd-down ratio</td><td>0.58</td><td>0.58</td></tr>
+      <tr><td>4th-down ratio</td><td>0.00</td><td>0.00</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="panel duel">
+    <div class="dhead"><div>Panthers</div><div></div><div>Falcons</div></div>
+    <div id="duel"></div>
+    <div class="total"><span>Panthers total <b>136.8</b></span><span>Falcons total 64.0</span><span>CF <b>72.9</b> → Panthers</span></div>
+  </div>
+  <p>Carolina wins every category except Downs, which is nearly even. The bars are category scores before the 0.33 / 0.22 / 0.18 / 0.27 weights.</p>
+</section>
+
+<section>
+  <h2>Where the "confidence" can come from nothing</h2>
+  <p><strong>Raiders @ Chargers</strong> is this week's lowest pick: Raiders +6.5 at CF 0.97. Most of Las Vegas's edge comes from one division by zero.</p>
+  <div class="callout red">
+    <h3>Receiving TDs: 3 ÷ 0</h3>
+    <p>The Chargers defense has allowed 0 receiving TDs, so the ratio can't be computed. Escanor falls back to the raw count, <strong>3.0</strong>, three times what a neutral ratio of 1.0 would give. At weight 15 × 0.18, that is worth <strong>+5.4 points</strong> to the Raiders. Without it, the Raiders total drops below the Chargers' and the pick flips to <strong>Chargers −6.5</strong>.</p>
+  </div>
+</section>
+
+<div class="part"><span class="eyebrow">Part 2</span><h2>Making it more accurate</h2></div>
+
+<section>
+  <p>Ranked by how much each is likely to change the picks. None of these are applied yet. Anything that changes the math should be backtested against 2025-26 before it replaces the current formula.</p>
+  <div class="fixes">
+    <div class="fix"><span class="impact h">High</span><div class="body">
+      <h3>Passing, rushing and receiving reward facing good defenses</h3>
+      <p>Offense ÷ defense-allowed gets <em>smaller</em> as the defense gets worse. In the example, the Panthers' 107.5 passer rating vs a Falcons defense allowing 81.4 scores 1.32. Against a defense allowing 124.1 it would score 0.87, so an easier opponent makes Carolina look weaker. Downs already does it the right way, against the defense's stop rate.</p>
+      <p><strong>Fix:</strong> compare both sides to the league average, e.g. <code>(offense ÷ league avg) × (defense allowed ÷ league avg)</code>. For stats where lower is better for the offense, flip the ratio.</p>
+    </div></div>
+
+    <div class="fix"><span class="impact h">High</span><div class="body">
+      <h3>The spread never affects the pick</h3>
+      <p>Escanor picks who wins, then labels it with the line. A CF of 14.7 on Ravens −8.5 says nothing about whether Baltimore wins by 9 or more. Picking against the spread only works if the model estimates a margin and compares it to the line.</p>
+      <p><strong>Fix:</strong> fit CF against last season's actual point margins (a simple linear fit is enough to start), convert CF to projected points, and pick the side where <code>projected margin − spread</code> is largest. Rank by that edge instead of raw CF.</p>
+    </div></div>
+
+    <div class="fix"><span class="impact h">High</span><div class="body">
+      <h3>Sacks count in the wrong direction</h3>
+      <p><code>Offensive_Passing_Sck</code> is sacks the offense <em>gave up</em>. More of them raises the score. The Falcons got a 2.00 ratio (the highest number in their column) purely from a leaky line.</p>
+      <p><strong>Fix:</strong> invert it (defense sacks made ÷ offense sacks allowed), and use sack rate per dropback rather than counts.</p>
+    </div></div>
+
+    <div class="fix"><span class="impact m">Medium</span><div class="body">
+      <h3>Divide-by-zero fallbacks inflate small numbers</h3>
+      <p>TD and sack ratios fall back to the raw count when the denominator is 0, which created the Raiders pick above.</p>
+      <p><strong>Fix:</strong> add 1 to both sides before dividing (<code>(off + 1) ÷ (def + 1)</code>), or cap every ratio at something like 0.5 to 2.0.</p>
+    </div></div>
+
+    <div class="fix"><span class="impact m">Medium</span><div class="body">
+      <h3>Early-season stats are one or two games deep</h3>
+      <p>Week 2 runs on a single game per team. Ratios like 2.16 for rush yards are mostly noise.</p>
+      <p><strong>Fix:</strong> blend with last season's final stats, fading the weight: roughly 70% last season in Week 2, 50% by Week 4, 0% by Week 8.</p>
+    </div></div>
+
+    <div class="fix"><span class="impact m">Medium</span><div class="body">
+      <h3>Season totals ignore bye weeks</h3>
+      <p>TDs, sacks and rush yards are totals. From Week 5 on, a team that has played one game fewer looks worse on all of them.</p>
+      <p><strong>Fix:</strong> divide totals by games played before computing ratios.</p>
+    </div></div>
+
+    <div class="fix"><span class="impact l">Low</span><div class="body">
+      <h3>No home-field or turnover signal</h3>
+      <p>Home field is worth roughly 1.5 points and isn't modeled. The scraper also pulls fumbles, interceptions and scoring, but Escanor never uses them. Turnover margin is one of the stronger single predictors of point margin.</p>
+      <p><strong>Fix:</strong> once CF is in points, add a home-field constant. Test adding turnovers as a fifth category.</p>
+    </div></div>
+
+    <div class="fix"><span class="impact l">Low</span><div class="body">
+      <h3>The weights are hand-picked</h3>
+      <p>33/22/18/27 and every sub-weight are judgment calls, never fit to results.</p>
+      <p><strong>Fix:</strong> after the fixes above, fit the weights on past seasons with a regression (predict margin from the category scores), then check them on a held-out season.</p>
+    </div></div>
+  </div>
+</section>
+
+<section>
+  <h2>Suggested order</h2>
+  <ol class="plan">
+    <li><strong>Build a backtest first.</strong> Collect per-game stats and final scores for 2025-26 and score the current formula against the closing spread. Without this, every change is a guess.</li>
+    <li><strong>Apply the bug-level fixes</strong> (sack direction, zero fallbacks, per-game rates) and re-run the backtest.</li>
+    <li><strong>Fix the ratio direction</strong> with league-average normalization, then backtest again.</li>
+    <li><strong>Convert CF to points</strong> and pick against the spread by edge.</li>
+    <li><strong>Add early-season blending, home field and turnovers</strong>, keeping each only if the backtest improves.</li>
+  </ol>
+  <p>A useful target: breaking even at standard −110 odds takes a <strong>52.4%</strong> win rate. Last season's full slate finished at 45.1%.</p>
+</section>
+
+<footer>Numbers from data/raw_week_02.json and data/current_week.json, Week 2, 2026. Formulas from predictor.py.</footer>
+</div>
+
+<script>
+const W=[
+ ["3rd-down conversion",21.6,"downs"],["Passer rating",11.55,"pass"],["Yards / reception",9.0,"rec"],
+ ["Yards / carry",8.8,"rush"],["Completion %",8.25,"pass"],["Yards / pass attempt",6.6,"pass"],
+ ["Rec 1st-down %",6.3,"rec"],["Rush yards (total)",5.5,"rush"],["4th-down conversion",5.4,"downs"],
+ ["Sacks allowed",4.95,"pass"],["Rush 1st-down %",4.4,"rush"],["Pass 1st-down %",3.3,"pass"],
+ ["Rushing TDs",3.3,"rush"],["Receiving TDs",2.7,"rec"]];
+const max=21.6, wl=document.getElementById('wlist');
+W.forEach(([n,v,c])=>{
+  const r=document.createElement('div');r.className='wrow';
+  const flag=n==="Sacks allowed";
+  r.innerHTML=`<span class="lbl${flag?' flag':''}">${n}</span><div class="track"><div class="bar" style="width:${v/max*100}%;background:var(--${c})"></div></div><span class="num">${v.toFixed(2)}</span>`;
+  wl.appendChild(r);
+});
+const D=[["Passing","pass",140.58,81.53],["Rushing","rush",197.06,51.68],["Receiving","rec",192.35,72.81],["Downs","downs",46.22,46.67]];
+const dm=200, du=document.getElementById('duel');
+D.forEach(([n,c,a,h])=>{
+  const r=document.createElement('div');r.className='drow';
+  r.innerHTML=`<div class="side l"><span class="v">${a.toFixed(1)}</span><div class="hbar" style="width:${a/dm*80}%;background:var(--${c})"></div></div><div class="mid">${n}</div><div class="side"><div class="hbar" style="width:${h/dm*80}%;background:var(--${c});opacity:.55"></div><span class="v">${h.toFixed(1)}</span></div>`;
+  du.appendChild(r);
+});
+</script>

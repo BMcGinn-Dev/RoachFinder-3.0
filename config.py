@@ -12,6 +12,12 @@ ACTIVE_WEEKS = range(2, 17)           # Weeks 2-16 inclusive (Week 1 & 17 exclud
 # ── Current Week (update before each run_week.py execution) ──────
 CURRENT_WEEK = 2                      # Set to the upcoming week number
 
+# ── Prediction model ─────────────────────────────────────────────
+# "v2" = Escanor v2 (ESPN box scores, picks against the spread; needs
+#        data/escanor_v2_params.json from  python backtest.py)
+# "v1" = original Escanor (NFL.com season stats, straight-up pick)
+MODEL_VERSION = "v2"
+
 # ── Data Sources ─────────────────────────────────────────────────
 ESPN_SCHEDULE_URL = "https://www.espn.com/nfl/schedule/_/week/{week}/year/{year}/seasontype/2"
 NFL_STATS_BASE_URL = "https://www.nfl.com/stats/team-stats"

@@ -244,6 +244,12 @@ def scrape_matchups(week: int = None, year: int = None) -> list:
                     favored_team = parts[0].strip()
                 except ValueError:
                     spread_amount = 0.0   # e.g. "EVEN"
+        spread_home = odds.get("spread")
+        spread_home = float(spread_home) if isinstance(spread_home, (int, float)) else None
+        if spread_home is None and favored_team and spread_str:
+            # Fall back to the "BUF -4.5" text: negative if the home team is favored
+            home_abbr = home.get("abbreviation", "")
+            spread_home = spread_amount if favored_team == home_abbr else -spread_amount
         ou = odds.get("overUnder")
         if ou is not None:
             over_under_str = f"{float(ou):g}"
@@ -263,6 +269,7 @@ def scrape_matchups(week: int = None, year: int = None) -> list:
             "over_under": over_under_str,
             "favored_team": favored_team,
             "spread_amount": spread_amount,
+            "spread_home": spread_home,
         }
         matchups.append(matchup)
         print(f"    Game {len(matchups)}: {away_short} @ {home_short}  {spread_str}")

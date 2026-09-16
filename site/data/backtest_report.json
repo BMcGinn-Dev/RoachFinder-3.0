@@ -1,0 +1,341 @@
+{
+  "generated": "2026-09-16",
+  "stages": [
+    {
+      "stage": "Current Escanor",
+      "fixes": [],
+      "straight_up_pct": 54.7,
+      "margin_corr": 0.219,
+      "all": {
+        "w": 256,
+        "l": 255,
+        "p": 0,
+        "pct": 50.1
+      },
+      "top5": {
+        "w": 89,
+        "l": 81,
+        "p": 0,
+        "pct": 52.4
+      },
+      "above_median": {
+        "w": 108,
+        "l": 106,
+        "p": 0,
+        "pct": 50.5
+      },
+      "by_season": {
+        "2024": {
+          "w": 138,
+          "l": 117,
+          "p": 0,
+          "pct": 54.1
+        },
+        "2025": {
+          "w": 118,
+          "l": 138,
+          "p": 0,
+          "pct": 46.1
+        }
+      },
+      "margin_mae": null
+    },
+    {
+      "stage": "+ Fix 1 normalize",
+      "fixes": [
+        "normalize"
+      ],
+      "straight_up_pct": 62.5,
+      "margin_corr": 0.334,
+      "all": {
+        "w": 253,
+        "l": 258,
+        "p": 0,
+        "pct": 49.5
+      },
+      "top5": {
+        "w": 86,
+        "l": 84,
+        "p": 0,
+        "pct": 50.6
+      },
+      "above_median": {
+        "w": 125,
+        "l": 110,
+        "p": 0,
+        "pct": 53.2
+      },
+      "by_season": {
+        "2024": {
+          "w": 136,
+          "l": 119,
+          "p": 0,
+          "pct": 53.3
+        },
+        "2025": {
+          "w": 117,
+          "l": 139,
+          "p": 0,
+          "pct": 45.7
+        }
+      },
+      "margin_mae": null
+    },
+    {
+      "stage": "+ Fix 2 vs spread",
+      "fixes": [
+        "normalize",
+        "ats"
+      ],
+      "straight_up_pct": 62.5,
+      "margin_corr": 0.317,
+      "all": {
+        "w": 252,
+        "l": 259,
+        "p": 0,
+        "pct": 49.3
+      },
+      "top5": {
+        "w": 86,
+        "l": 84,
+        "p": 0,
+        "pct": 50.6
+      },
+      "above_median": {
+        "w": 120,
+        "l": 128,
+        "p": 0,
+        "pct": 48.4
+      },
+      "by_season": {
+        "2024": {
+          "w": 128,
+          "l": 127,
+          "p": 0,
+          "pct": 50.2
+        },
+        "2025": {
+          "w": 124,
+          "l": 132,
+          "p": 0,
+          "pct": 48.4
+        }
+      },
+      "margin_mae": 10.75
+    },
+    {
+      "stage": "+ Fix 3 sacks",
+      "fixes": [
+        "normalize",
+        "ats",
+        "sack_fix"
+      ],
+      "straight_up_pct": 63.9,
+      "margin_corr": 0.35,
+      "all": {
+        "w": 253,
+        "l": 258,
+        "p": 0,
+        "pct": 49.5
+      },
+      "top5": {
+        "w": 86,
+        "l": 84,
+        "p": 0,
+        "pct": 50.6
+      },
+      "above_median": {
+        "w": 113,
+        "l": 115,
+        "p": 0,
+        "pct": 49.6
+      },
+      "by_season": {
+        "2024": {
+          "w": 128,
+          "l": 127,
+          "p": 0,
+          "pct": 50.2
+        },
+        "2025": {
+          "w": 125,
+          "l": 131,
+          "p": 0,
+          "pct": 48.8
+        }
+      },
+      "margin_mae": 10.66
+    },
+    {
+      "stage": "+ Fix 4 smoothing",
+      "fixes": [
+        "normalize",
+        "ats",
+        "sack_fix",
+        "smooth"
+      ],
+      "straight_up_pct": 64.3,
+      "margin_corr": 0.386,
+      "all": {
+        "w": 258,
+        "l": 253,
+        "p": 0,
+        "pct": 50.5
+      },
+      "top5": {
+        "w": 84,
+        "l": 86,
+        "p": 0,
+        "pct": 49.4
+      },
+      "above_median": {
+        "w": 110,
+        "l": 121,
+        "p": 0,
+        "pct": 47.6
+      },
+      "by_season": {
+        "2024": {
+          "w": 135,
+          "l": 120,
+          "p": 0,
+          "pct": 52.9
+        },
+        "2025": {
+          "w": 123,
+          "l": 133,
+          "p": 0,
+          "pct": 48.0
+        }
+      },
+      "margin_mae": 10.54
+    },
+    {
+      "stage": "+ Fix 5 rates/blend",
+      "fixes": [
+        "normalize",
+        "ats",
+        "sack_fix",
+        "smooth",
+        "rates"
+      ],
+      "straight_up_pct": 65.1,
+      "margin_corr": 0.393,
+      "all": {
+        "w": 254,
+        "l": 257,
+        "p": 0,
+        "pct": 49.7
+      },
+      "top5": {
+        "w": 85,
+        "l": 85,
+        "p": 0,
+        "pct": 50.0
+      },
+      "above_median": {
+        "w": 119,
+        "l": 138,
+        "p": 0,
+        "pct": 46.3
+      },
+      "by_season": {
+        "2024": {
+          "w": 132,
+          "l": 123,
+          "p": 0,
+          "pct": 51.8
+        },
+        "2025": {
+          "w": 122,
+          "l": 134,
+          "p": 0,
+          "pct": 47.7
+        }
+      },
+      "margin_mae": 10.54
+    },
+    {
+      "stage": "+ Fix 6 HFA/TO/fit",
+      "fixes": [
+        "normalize",
+        "ats",
+        "sack_fix",
+        "smooth",
+        "rates",
+        "fitted"
+      ],
+      "straight_up_pct": 64.9,
+      "margin_corr": 0.404,
+      "all": {
+        "w": 251,
+        "l": 260,
+        "p": 0,
+        "pct": 49.1
+      },
+      "top5": {
+        "w": 88,
+        "l": 82,
+        "p": 0,
+        "pct": 51.8
+      },
+      "above_median": {
+        "w": 136,
+        "l": 135,
+        "p": 0,
+        "pct": 50.2
+      },
+      "by_season": {
+        "2024": {
+          "w": 128,
+          "l": 127,
+          "p": 0,
+          "pct": 50.2
+        },
+        "2025": {
+          "w": 123,
+          "l": 133,
+          "p": 0,
+          "pct": 48.0
+        }
+      },
+      "margin_mae": 10.36
+    }
+  ],
+  "final_params": {
+    "fitted_on": [
+      2024,
+      2025
+    ],
+    "generated": "2026-09-16",
+    "fixes": [
+      "normalize",
+      "ats",
+      "sack_fix",
+      "smooth",
+      "rates",
+      "fitted"
+    ],
+    "blend_games": 2,
+    "points_per_unit": 0.37014875582909884,
+    "fitted_hfa": 1.9724699964629424,
+    "fitted_weights": {
+      "cmp_pct": 1.5560865085966145,
+      "rating": 2.327512867835075,
+      "pass_1st": 1.1915986372233316,
+      "sacks": 2.156142964950558,
+      "ypa": 3.273092095845555,
+      "ypc": 0.4002797527878645,
+      "rush_td": 2.547719524850627,
+      "rush_1st": 0.35321666281551467,
+      "rush_yds": 2.194872460583848,
+      "ypr": 1.7401988198444707,
+      "rec_td": 1.716123822587965,
+      "rec_1st": -0.3236979922001396,
+      "third": 0.5947804519561016,
+      "fourth": 3.3637464773098227,
+      "turnovers": 1.4977314145438592
+    },
+    "ridge_lambda": 30
+  }
+}

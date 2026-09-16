@@ -18,9 +18,12 @@ import os
 import shutil
 import json
 
-from config import CURRENT_WEEK, ACTIVE_WEEKS, DATA_DIR, SITE_DATA_DIR
+from config import (CURRENT_WEEK, ACTIVE_WEEKS, DATA_DIR, SITE_DATA_DIR,
+                    MODEL_VERSION, CURRENT_SEASON_START_YEAR)
 from scraper import scrape_all_stats, scrape_matchups, save_raw_stats
 from predictor import run_predictions, save_current_week
+from export_picks import export_week_to_excel
+from escanor_v2 import run_predictions_v2
 
 
 def copy_data_to_site():
@@ -51,19 +54,27 @@ def main():
     print(f"  RoachFinder 3.0 — Processing Week {week}")
     print(f"{'#'*60}")
 
-    # Step 1: Scrape team stats
-    master_df = scrape_all_stats()
-    save_raw_stats(master_df, week)
+    if MODEL_VERSION == "v2":
+        # Step 1-3 (v2): matchups + lines from ESPN, team stats from ESPN box scores
+        matchups = scrape_matchups(week)
+        if not matchups:
+            print("\n  ERROR: No matchups found. Is the ESPN schedule available for this week?")
+            return
+        results = run_predictions_v2(matchups, CURRENT_SEASON_START_YEAR, week)
+    else:
+        # Step 1: Scrape team stats
+        master_df = scrape_all_stats()
+        save_raw_stats(master_df, week)
 
-    # Step 2: Scrape matchups
-    matchups = scrape_matchups(week)
+        # Step 2: Scrape matchups
+        matchups = scrape_matchups(week)
 
-    if not matchups:
-        print("\n  ERROR: No matchups found. Is the ESPN schedule available for this week?")
-        return
+        if not matchups:
+            print("\n  ERROR: No matchups found. Is the ESPN schedule available for this week?")
+            return
 
-    # Step 3: Run predictions
-    results = run_predictions(master_df, matchups)
+        # Step 3: Run predictions
+        results = run_predictions(master_df, matchups)
 
     # Step 4: Save results
     save_current_week(results, week)
@@ -71,11 +82,14 @@ def main():
     # Step 5: Copy to site/data/
     copy_data_to_site()
 
+    # Step 6: Save picks to the season Excel workbook
+    export_week_to_excel()
+
     print(f"\n{'#'*60}")
     print(f"  Done! Week {week} predictions are ready.")
     print(f"  Next steps:")
     print(f"    1. Review data/current_week.json")
-    print(f"    2. Upload site/ folder to cPanel")
+    print(f"    2. git add -A, commit, push; then git pull on PythonAnywhere + Reload")
     print(f"    3. After games: python enter_results.py")
     print(f"{'#'*60}\n")
 
