@@ -1,0 +1,424 @@
+<title>Escanor v1 vs v2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+:root{
+  color-scheme: dark;
+  --bg-0:#05070d; --bg-1:#0a0e16; --bg-elev:#121824; --bg-hi:#1a2030;
+  --line:rgba(148,163,184,.12); --line-strong:rgba(148,163,184,.26);
+  --text:#e6edf5; --dim:#94a3b8; --muted:#64748b;
+  --v1:#f59e0b; --v1-soft:rgba(245,158,11,.14);
+  --v2:#22c55e; --v2-soft:rgba(34,197,94,.14);
+  --vegas:#60a5fa; --red:#f87171; --gold:#eab308;
+  --pass:#60a5fa; --rush:#f59e0b; --rec:#a78bfa; --downs:#22c55e; --to:#f472b6;
+  --mono:'JetBrains Mono', ui-monospace, Consolas, monospace;
+}
+*{box-sizing:border-box}
+body{background:var(--bg-0);color:var(--text);font-family:'Inter',-apple-system,'Segoe UI',sans-serif;font-size:15px;line-height:1.6;
+  background-image:radial-gradient(ellipse 70% 35% at 20% -5%,rgba(245,158,11,.08),transparent 70%),radial-gradient(ellipse 70% 35% at 85% -5%,rgba(34,197,94,.09),transparent 70%)}
+.wrap{max-width:940px;margin:0 auto;padding-inline:20px;padding-block:48px 90px}
+h1,h2,h3{text-wrap:balance;line-height:1.2;margin:0}
+h1{font-size:clamp(2.1rem,5.5vw,3.1rem);font-weight:800;letter-spacing:-.03em}
+h1 .a{color:var(--v1)} h1 .b{color:var(--v2)}
+h2{font-size:1.55rem;font-weight:750;letter-spacing:-.02em}
+h3{font-size:1.02rem;font-weight:700}
+p{margin:0;max-width:70ch;color:var(--dim)}
+p strong,li strong,td strong{color:var(--text)}
+ul{margin:0;padding-left:1.2em;color:var(--dim);display:grid;gap:6px;max-width:70ch}
+.eyebrow{font-size:.72rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.t1{color:var(--v1)} .t2{color:var(--v2)} .tv{color:var(--vegas)} .tr{color:var(--red)}
+code,.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+code{font-size:.85em;background:var(--bg-hi);padding:1px 6px;border-radius:4px;color:var(--text)}
+header{display:grid;gap:14px;margin-bottom:28px}
+header p{font-size:1.06rem}
+section{display:grid;gap:18px;padding-block:38px;border-top:1px solid var(--line)}
+.part{padding-top:28px;display:grid;gap:4px}
+.part h2{font-size:2rem}
+.panel{background:var(--bg-elev);border:1px solid var(--line);border-radius:10px;padding:18px;display:grid;gap:12px}
+.formula{font-family:var(--mono);font-size:.86rem;color:var(--text);background:var(--bg-1);border:1px solid var(--line);border-radius:6px;padding:9px 12px;overflow-x:auto;white-space:nowrap}
+.tag{display:inline-block;font-size:.68rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;padding:2px 8px;border-radius:4px}
+.tag.v1{background:var(--v1-soft);color:var(--v1)} .tag.v2{background:var(--v2-soft);color:var(--v2)}
+
+/* verdict tiles */
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.tile{background:var(--bg-elev);border:1px solid var(--line);border-radius:10px;padding:14px 16px;display:grid;gap:6px}
+.tile .k{font-size:.74rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.tile .v{font-family:var(--mono);font-size:1.25rem;font-weight:600;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.tile .v .arrow{color:var(--muted);font-size:.95rem}
+.tile p{font-size:.84rem}
+
+/* compare columns */
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.col{border-radius:10px;padding:16px;border:1px solid var(--line);background:var(--bg-elev);display:grid;gap:10px;align-content:start}
+.col.v1{border-top:3px solid var(--v1)} .col.v2{border-top:3px solid var(--v2)}
+.flow{display:grid;gap:0}
+.fstep{display:grid;grid-template-columns:26px 1fr;gap:10px;position:relative;padding-bottom:12px}
+.fstep:not(:last-child)::before{content:"";position:absolute;left:12px;top:26px;bottom:0;width:2px;background:var(--line-strong)}
+.fn{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-family:var(--mono);font-size:.78rem;font-weight:600;background:var(--bg-1)}
+.v1 .fn{border:2px solid var(--v1);color:var(--v1)} .v2 .fn{border:2px solid var(--v2);color:var(--v2)}
+.fstep b{color:var(--text);font-weight:650}
+.fstep span{color:var(--dim);font-size:.88rem;display:block}
+
+/* table */
+.tbl{overflow-x:auto;border:1px solid var(--line);border-radius:8px}
+table{border-collapse:collapse;width:100%;font-size:.85rem;min-width:600px}
+th,td{padding:8px 12px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:700;background:var(--bg-1)}
+td{color:var(--dim)}
+td.num,th.num{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-nums}
+tr:last-child td{border-bottom:0}
+tr.vegas td{color:var(--vegas)}
+
+/* bars */
+.bars{display:grid;gap:7px}
+.brow{display:grid;grid-template-columns:minmax(110px,170px) 1fr;gap:10px;align-items:center;font-size:.82rem}
+.brow .lbl{color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pair{display:grid;gap:3px}
+.bline{display:grid;grid-template-columns:1fr 48px;gap:8px;align-items:center}
+.track{height:10px;background:var(--bg-1);border-radius:3px;overflow:hidden}
+.fill{height:100%;border-radius:3px}
+.bline .n{font-family:var(--mono);font-size:.75rem;color:var(--dim);text-align:right}
+.legend{display:flex;flex-wrap:wrap;gap:16px;font-size:.78rem;color:var(--dim)}
+.legend span::before{content:"";display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:-1px;background:var(--c)}
+
+/* diverging */
+.div{display:grid;gap:5px}
+.drow{display:grid;grid-template-columns:minmax(96px,150px) 1fr 58px;gap:10px;align-items:center;font-size:.8rem}
+.drow .lbl{color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dtrack{position:relative;height:14px}
+.dtrack::before{content:"";position:absolute;left:50%;top:-3px;bottom:-3px;width:1px;background:var(--line-strong)}
+.dbar{position:absolute;top:0;height:100%;border-radius:2px}
+.drow .n{font-family:var(--mono);text-align:right;color:var(--dim)}
+.dhead{display:grid;grid-template-columns:minmax(96px,150px) 1fr 58px;gap:10px;font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-weight:700}
+.dhead .ends{display:flex;justify-content:space-between}
+.result{display:flex;flex-wrap:wrap;gap:8px 18px;padding-top:10px;border-top:1px solid var(--line);font-size:.88rem;color:var(--dim)}
+.result b{font-family:var(--mono);color:var(--text)}
+
+/* example compare */
+.mini{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.mini .panel h3{display:flex;gap:8px;align-items:center}
+.ex-bars{display:grid;gap:8px}
+.ex{display:grid;grid-template-columns:118px 1fr 52px;gap:10px;align-items:center;font-size:.82rem}
+.ex .n{font-family:var(--mono);text-align:right;color:var(--text)}
+
+.callout{border-left:3px solid var(--gold);background:rgba(234,179,8,.06);padding:12px 16px;border-radius:0 8px 8px 0;display:grid;gap:6px}
+.callout.red{border-color:var(--red);background:rgba(248,113,113,.06)}
+.callout.green{border-color:var(--v2);background:var(--v2-soft)}
+.callout p{font-size:.93rem}
+
+svg text{font-family:'Inter',sans-serif}
+.chart{overflow-x:auto}
+footer{margin-top:30px;font-size:.8rem;color:var(--muted);display:grid;gap:4px}
+@media (max-width:680px){
+  .cols,.mini{grid-template-columns:1fr}
+  .brow{grid-template-columns:100px 1fr}
+  .drow,.dhead{grid-template-columns:86px 1fr 50px}
+  .ex{grid-template-columns:96px 1fr 46px}
+}
+</style>
+
+<div class="wrap">
+<header>
+  <span class="eyebrow">RoachFinder 3.0 · predictor.py → escanor_v2.py</span>
+  <h1><span class="a">Escanor v1</span> vs <span class="b">v2</span></h1>
+  <p>How the original algorithm worked, how the rebuilt one works, what changed, and what the changes are actually worth. All numbers come from a replay of the 2024 and 2025 seasons (511 games, Weeks 2–18), where each week only uses stats that existed before kickoff.</p>
+</header>
+
+<section style="border-top:0;padding-top:8px">
+  <h2>The short version</h2>
+  <div class="tiles">
+    <div class="tile"><span class="k">Picks the right winner</span>
+      <div class="v"><span class="t1">54.7%</span><span class="arrow">→</span><span class="t2">64.9%</span></div>
+      <p>Vegas favorites win 67.8%. v2 closed most of that gap.</p></div>
+    <div class="tile"><span class="k">Tracks the final margin</span>
+      <div class="v"><span class="t1">0.22</span><span class="arrow">→</span><span class="t2">0.40</span></div>
+      <p>Correlation, 0 to 1. The Vegas line scores 0.51.</p></div>
+    <div class="tile"><span class="k">Beats the spread</span>
+      <div class="v"><span class="t1">50.1%</span><span class="arrow">→</span><span class="t2">49.1%</span></div>
+      <p>No change. Both are coin flips. Profit needs 52.4%.</p></div>
+  </div>
+  <p><strong>v2 is a much better football model and no better betting model.</strong> It understands games far better than v1, but almost everything it knows is already in the line. Part 4 explains why, and what "better" can realistically mean from here.</p>
+</section>
+
+<section>
+  <h2>Side by side</h2>
+  <div class="cols">
+    <div class="col v1">
+      <span class="tag v1">v1 · Original Escanor</span>
+      <div class="flow">
+        <div class="fstep"><div class="fn">1</div><div><b>Season stats from NFL.com</b><span>13 stat pages, season totals and averages. Scraped fresh every week.</span></div></div>
+        <div class="fstep"><div class="fn">2</div><div><b>Offense ÷ defense allowed</b><span>For each of 14 stats, one number per side. Raw counts for TDs, sacks, rush yards.</span></div></div>
+        <div class="fstep"><div class="fn">3</div><div><b>Hand-picked weights</b><span>Passing 33, Rushing 22, Receiving 18, Downs 27, plus sub-weights.</span></div></div>
+        <div class="fstep"><div class="fn">4</div><div><b>Pick the higher total</b><span>A straight-up winner pick. Home field ignored.</span></div></div>
+        <div class="fstep"><div class="fn">5</div><div><b>Attach the spread as a label</b><span>"Bills −3.5" whether or not the model thinks they win by 4.</span></div></div>
+        <div class="fstep"><div class="fn">6</div><div><b>CF = gap between totals</b><span>Unitless score, often 1 to 60+.</span></div></div>
+      </div>
+    </div>
+    <div class="col v2">
+      <span class="tag v2">v2 · Escanor v2</span>
+      <div class="flow">
+        <div class="fstep"><div class="fn">1</div><div><b>Game box scores from ESPN</b><span>Every game this season, plus last season counted as 2 games.</span></div></div>
+        <div class="fstep"><div class="fn">2</div><div><b>Rates, smoothed</b><span>Everything per play / per game, pulled toward league average when the sample is small.</span></div></div>
+        <div class="fstep"><div class="fn">3</div><div><b>(Offense ÷ league) × (defense ÷ league)</b><span>Same 14 stats plus turnovers. Capped between 0.5 and 2.0. Sacks and turnovers count against the offense.</span></div></div>
+        <div class="fstep"><div class="fn">4</div><div><b>Fitted weights + 2.0 pt home field</b><span>Learned from 2024–2025 results, in points.</span></div></div>
+        <div class="fstep"><div class="fn">5</div><div><b>Projected margin vs the line</b><span>Pick whichever side the projection beats the spread for.</span></div></div>
+        <div class="fstep"><div class="fn">6</div><div><b>Confidence = points of edge</b><span>Usually 0 to 4 points.</span></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="part"><span class="eyebrow">Part 1</span><h2>How <span class="t1">v1</span> worked</h2></div>
+
+<section>
+  <p>v1 asked one question per game: <strong>whose offense looks better compared with what the other defense gives up?</strong> It answered with 14 ratios per team.</p>
+  <div class="formula">ratio = offense's stat ÷ opposing defense's allowed stat        (3rd/4th down: offense conv% ÷ defense stop%)</div>
+  <p>A ratio of 1.0 means the offense matches what that defense usually allows. Each ratio was multiplied by a hand-picked weight, the four categories were weighted 33 / 22 / 18 / 27, and the team with the bigger total was the pick. The gap between totals was the Confidence Factor (CF).</p>
+
+  <div class="panel">
+    <h3>Where v1's weight went</h3>
+    <p style="font-size:.88rem">Each stat's share of a team's total. 3rd-down conversion alone was over a fifth of the model.</p>
+    <div class="bars" id="v1weights"></div>
+    <div class="legend"><span style="--c:var(--pass)">Passing</span><span style="--c:var(--rush)">Rushing</span><span style="--c:var(--rec)">Receiving</span><span style="--c:var(--downs)">Downs</span></div>
+  </div>
+
+  <h3>The four problems hiding in it</h3>
+  <ul>
+    <li><strong>Backwards defense comparison.</strong> Dividing by what a defense allows makes an offense look <em>worse</em> against a <em>bad</em> defense.</li>
+    <li><strong>Raw counts.</strong> TDs, sacks and rush yards were season totals, so a team with one more game played looked better, and a team coming off a bye looked worse.</li>
+    <li><strong>Tiny samples and zeros.</strong> A defense that allowed 6 of 7 fourth downs, or 0 TDs, produced ratios of 3, 5 or more that could decide a game by themselves.</li>
+    <li><strong>No spread logic.</strong> It picked winners, then glued the line on. A 1-point favorite and a 14-point favorite were treated the same way.</li>
+  </ul>
+</section>
+
+<div class="part"><span class="eyebrow">Part 2</span><h2>How <span class="t2">v2</span> works</h2></div>
+
+<section>
+  <h2>Step 1: build each team's rates</h2>
+  <p>v2 reads every finished game's box score from ESPN (completions, attempts, yards, TDs, sacks, 3rd/4th downs, drives, turnovers) and adds them up per team, for offense and for what opponents did against them. Because it knows games played, every stat becomes a rate: TDs per play, sacks per dropback, rush yards per game, turnovers per drive.</p>
+  <p>Early in the season those rates rest on one or two games, so v2 mixes in last season's stats, counted as if they were <strong>2 games</strong>. The backtest tested 0, 2, 4 and 8 and found 2 fit best. Last season's share fades automatically as games pile up:</p>
+  <div class="panel">
+    <div class="chart"><svg id="blend" viewBox="0 0 640 210" width="100%" role="img" aria-label="Share of each team's numbers coming from last season, by games played"></svg></div>
+    <p style="font-size:.85rem">After 1 game, two thirds of a team's numbers come from last season. By Week 10 it is under 20%.</p>
+  </div>
+  <p>Each rate is also <strong>smoothed</strong>: it gets one average game's worth of league-average numbers mixed in. That's why a team with 0 TDs allowed reads as "a bit better than average," not "infinitely good."</p>
+</section>
+
+<section>
+  <h2>Step 2: size up each matchup</h2>
+  <div class="formula">index = (offense rate ÷ league average) × (defense allowed rate ÷ league average)</div>
+  <p>Both halves now point the same way. A strong offense <em>and</em> a leaky defense both push the index up. For sacks and turnovers, where a higher number is bad for the offense, the index is flipped. Every index is capped between <strong>0.5 and 2.0</strong> so no single stat can run away with a game.</p>
+  <div class="panel">
+    <h3>Example: a 107.5 passer rating (league average ≈ 92)</h3>
+    <div class="ex-bars" id="normex"></div>
+    <p style="font-size:.86rem">v1 rated the easy matchup <span class="tr">lower</span> than the hard one. v2 rates it higher, which is how football actually works.</p>
+  </div>
+</section>
+
+<section>
+  <h2>Step 3: turn indexes into points</h2>
+  <p>v2 subtracts the away team's index from the home team's for each stat, multiplies by a weight, adds them up, and adds <strong>+2.0 points for home field</strong>. The weights were fitted with a regression on 2024–2025 results, so the output is a <strong>projected final margin in points</strong>.</p>
+  <div class="panel">
+    <h3>Hand-picked (v1) vs fitted (v2): share of total weight</h3>
+    <div class="bars" id="wcompare"></div>
+    <div class="legend"><span style="--c:var(--v1)">v1 hand-picked</span><span style="--c:var(--v2)">v2 fitted from results</span></div>
+    <p style="font-size:.86rem">The data disagreed with the old instincts. 3rd-down conversion fell from 21% to 2%, because once passing efficiency is in, 3rd-down success adds little. Yards per attempt, 4th-down conversion and rushing TD rate rose to the top. Turnovers, which v1 never used, earned about 6%. One weight (Rec 1st-down %) came out slightly negative, which is noise rather than a real effect.</p>
+  </div>
+</section>
+
+<section>
+  <h2>Step 4: pick against the line</h2>
+  <p>v2 writes its projection as a betting line and compares it with the real one. The difference is the <strong>edge</strong>, and the pick is the side the edge favors.</p>
+  <div class="panel">
+    <div class="chart"><svg id="linechart" viewBox="0 0 640 170" width="100%" role="img" aria-label="Number line comparing the model line with the Vegas line"></svg></div>
+    <p style="font-size:.86rem">Example from 2025 Week 6: Vegas had the Falcons as 3.5-point home underdogs. v2 thought they were only 1.9-point underdogs. The Falcons are 1.6 points better than the line gives them credit for, so the pick is <strong>Falcons +3.5</strong> with an edge of 1.6.</p>
+  </div>
+  <p>This is why v2's confidence numbers are small (usually 0–4). They're in points, and the closing line is rarely far from what a stats model thinks.</p>
+</section>
+
+<div class="part"><span class="eyebrow">Part 3</span><h2>One game through both</h2></div>
+
+<section>
+  <h2>Bills @ Falcons, 2025 Week 6</h2>
+  <p>Line: <strong>Bills −3.5</strong>. The Falcons had played 4 games, the Bills 5. v1 made this its most confident pick of the week by a mile. v2 went the other way.</p>
+
+  <div class="panel">
+    <h3><span class="tag v1">v1</span> Stat-by-stat pull (Falcons minus Bills, score units)</h3>
+    <div class="dhead"><span></span><div class="ends"><span>← favors Bills</span><span>favors Falcons →</span></div><span></span></div>
+    <div class="div" id="exv1"></div>
+    <div class="result"><span>Total: <b>−59.0</b></span><span>Pick: <b class="t1">Bills −3.5</b>, CF 59.0 (week's #1)</span></div>
+  </div>
+  <div class="callout red">
+    <h3>What went wrong in v1</h3>
+    <p>Two ratios decided it. <strong>4th downs (−20.3):</strong> the Falcons defense had allowed 6 of 7, so its "stop rate" was 14% and the Bills' ratio came out 5.25. <strong>Rushing TDs (−13.0):</strong> 9 Bills TDs ÷ 2 allowed = 4.5, a raw count against a tiny denominator. Neither says much about the Falcons.</p>
+  </div>
+
+  <div class="panel">
+    <h3><span class="tag v2">v2</span> Stat-by-stat pull (points)</h3>
+    <div class="dhead"><span></span><div class="ends"><span>← favors Bills</span><span>favors Falcons →</span></div><span></span></div>
+    <div class="div" id="exv2"></div>
+    <div class="result"><span>Stats: <b>−3.9</b></span><span>Home field: <b>+2.0</b></span><span>Projected: <b>Bills by 1.9</b></span><span>Pick: <b class="t2">Falcons +3.5</b>, edge 1.6</span></div>
+  </div>
+  <div class="callout green">
+    <h3>Result: Falcons 24, Bills 14</h3>
+    <p>v2's pick covered, v1's lost. The same 4th-down stat is still there, but smoothing and the cap shrink it to −1.8 points. The 2024 blend adds context, and home field is counted. <strong>This is one game, chosen because it shows the mechanics clearly.</strong> Over 511 games, the two versions beat the spread equally often.</p>
+  </div>
+</section>
+
+<div class="part"><span class="eyebrow">Part 4</span><h2>How much better is it?</h2></div>
+
+<section>
+  <h2>Fix by fix</h2>
+  <p>Each row adds one change on top of the last. Anything learned from data was trained on one season and tested on the other.</p>
+  <div class="panel">
+    <div class="chart"><svg id="stages" viewBox="0 0 660 300" width="100%" role="img" aria-label="Straight-up and against-the-spread accuracy by stage"></svg></div>
+    <div class="legend"><span style="--c:var(--v2)">Picks the winner</span><span style="--c:var(--v1)">Beats the spread</span><span style="--c:var(--vegas)">Vegas favorite wins</span><span style="--c:var(--red)">Break-even 52.4%</span></div>
+  </div>
+  <div class="tbl"><table>
+    <thead><tr><th>Stage</th><th class="num">Winner</th><th class="num">Margin corr.</th><th class="num">ATS all</th><th class="num">ATS top 5</th><th class="num">ATS ≥ median</th></tr></thead>
+    <tbody id="stagetbl"></tbody>
+  </table></div>
+  <p style="font-size:.86rem">"Top 5" is each week's five most confident picks (170 picks). "≥ median" uses the rolling median confidence, as the site does.</p>
+</section>
+
+<section>
+  <h2>Why the spread number didn't move</h2>
+  <p>The closing line is set by a market that already knows everything in a box score, plus injuries, weather, QB news and sharp money. A model built only from box scores can get very good at predicting games and still only re-discover the line. The backtest checked this directly: after accounting for the line, v2's projection added no measurable information about the final margin.</p>
+  <p>Put simply, <strong>if v2 were as accurate as Vegas, it would still hit about 50% against Vegas</strong>, because it would just be copying the line.</p>
+  <div class="callout">
+    <h3>How much luck is in these numbers</h3>
+    <p>With 511 games, a true 50% model lands anywhere from about 45.7% to 54.3% just by chance. Your live 2025-26 record (45.1%) and both backtests (49–50%) are all consistent with a coin flip. Top-5 records use only 170 picks, so their range is about ±7.5 points.</p>
+  </div>
+</section>
+
+<section>
+  <h2>What to expect from v2</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>Question</th><th>Realistic answer</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Picking straight-up winners</strong></td><td>About 63–66%, up from about 55%. A real, lasting improvement.</td></tr>
+      <tr><td><strong>Beating the spread, all games</strong></td><td>About 48–52% in a typical season. Expect a coin flip.</td></tr>
+      <tr><td><strong>Money at −110, flat bets</strong></td><td>At 50%, you lose about 4.5% of every dollar bet over time. Break-even needs 52.4%, about 11 wins for every 10 losses.</td></tr>
+      <tr><td><strong>Early-season picks</strong></td><td>More stable than v1. Last season's data keeps Week 2–4 numbers from swinging on one game.</td></tr>
+      <tr><td><strong>The confidence number</strong></td><td>Now means something concrete (points of disagreement with the line). In the backtest, the top-5 edges went 51.8%, only slightly above the rest and well within luck. Treat it as a ranking, not a probability.</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>What could still make it better</h3>
+  <ul>
+    <li><strong>Information the line reacts to late:</strong> injuries (especially QB), weather and rest days. This is the most promising direction, because it's what a box score can't see.</li>
+    <li><strong>Earlier lines:</strong> grade against opening lines instead of closing lines. Models sometimes beat the opener before the market corrects.</li>
+    <li><strong>Pass only when the edge is big:</strong> worth testing with more seasons of data; two seasons aren't enough to trust a threshold.</li>
+    <li><strong>More history:</strong> each extra season shrinks the luck range and makes the fitted weights steadier. Run <code>python fetch_history.py 2026</code> and <code>python backtest.py</code> after the season.</li>
+  </ul>
+</section>
+
+<section>
+  <h2>Switching and re-checking</h2>
+  <ul>
+    <li><strong>Which model runs:</strong> <code>MODEL_VERSION</code> in <code>config.py</code>. <code>"v2"</code> is the default; <code>"v1"</code> brings back the original.</li>
+    <li><strong>Re-run the comparison:</strong> <code>python backtest.py</code> prints the stage table above and refits v2's settings into <code>data\escanor_v2_params.json</code>.</li>
+    <li><strong>Where the code lives:</strong> v1 in <code>predictor.py</code> (unchanged), v2 in <code>escanor_v2.py</code>, data loading in <code>espn_data.py</code>.</li>
+  </ul>
+  <div class="callout">
+    <h3>Correction</h3>
+    <p>During the build I said Fix 2 converts the score gap at "about 2.1 points per unit." The fitted value was actually about <strong>0.2–0.3 points per unit</strong> (a gap of 10 ≈ 2–3 points). The backtest numbers above were always computed with the correct value.</p>
+  </div>
+</section>
+
+<footer>
+  <span>Data: ESPN box scores and closing lines, 2023–2025 regular seasons. Backtest: 2024 and 2025, Weeks 2–18, 511 games with lines.</span>
+  <span>Files: predictor.py, escanor_v2.py, espn_data.py, backtest.py, data/backtest_report.json.</span>
+</footer>
+</div>
+
+<script>
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const catColor = {passing:'var(--pass)',rushing:'var(--rush)',receiving:'var(--rec)',downs:'var(--downs)',turnovers:'var(--to)'};
+const STATS = [
+ ["3rd-down conv.","downs",21.2,2.4],["Passer rating","passing",11.4,9.2],["Yards / reception","receiving",8.9,6.9],
+ ["Yards / carry","rushing",8.7,1.6],["Completion %","passing",8.1,6.2],["Yards / attempt","passing",6.5,13.0],
+ ["Rec 1st-down %","receiving",6.2,1.3],["Rush yards","rushing",5.4,8.7],["4th-down conv.","downs",5.3,13.3],
+ ["Sacks","passing",4.9,8.5],["Rush 1st-down %","rushing",4.3,1.4],["Pass 1st-down %","passing",3.2,4.7],
+ ["Rushing TDs","rushing",3.2,10.1],["Receiving TDs","receiving",2.7,6.8],["Turnovers","turnovers",0,5.9]];
+
+// v1 weights
+(()=>{const el=document.getElementById('v1weights');const mx=21.2;
+ STATS.filter(s=>s[2]>0).forEach(([n,c,a])=>{const r=document.createElement('div');r.className='brow';
+  r.innerHTML=`<span class="lbl">${n}</span><div class="bline"><div class="track"><div class="fill" style="width:${a/mx*100}%;background:${catColor[c]}"></div></div><span class="n">${a.toFixed(1)}%</span></div>`;el.appendChild(r);});})();
+
+// weight comparison
+(()=>{const el=document.getElementById('wcompare');const mx=21.2;
+ [...STATS].sort((x,y)=>y[3]-x[3]).forEach(([n,c,a,b])=>{const r=document.createElement('div');r.className='brow';
+  r.innerHTML=`<span class="lbl">${n}</span><div class="pair">
+   <div class="bline"><div class="track"><div class="fill" style="width:${a/mx*100}%;background:var(--v1)"></div></div><span class="n">${a.toFixed(1)}%</span></div>
+   <div class="bline"><div class="track"><div class="fill" style="width:${b/mx*100}%;background:var(--v2)"></div></div><span class="n">${b.toFixed(1)}%</span></div></div>`;el.appendChild(r);});})();
+
+// normalization example
+(()=>{const el=document.getElementById('normex');const rows=[
+ ["v1 · vs tough D (allows 81.4)",1.32,'var(--v1)'],["v1 · vs weak D (allows 124.1)",0.87,'var(--v1)'],
+ ["v2 · vs tough D (allows 81.4)",1.03,'var(--v2)'],["v2 · vs weak D (allows 124.1)",1.58,'var(--v2)']];
+ rows.forEach(([n,v,c])=>{const r=document.createElement('div');r.className='ex';
+  r.innerHTML=`<span style="color:var(--text);font-size:.78rem">${n}</span><div class="track" style="height:14px"><div class="fill" style="width:${v/2*100}%;background:${c}"></div></div><span class="n">${v.toFixed(2)}</span>`;el.appendChild(r);});})();
+
+// blend chart
+(()=>{const s=document.getElementById('blend');const W=640,H=210,L=48,R=16,T=14,B=38;
+ const x=g=>L+(g-1)/(16-1)*(W-L-R), y=p=>T+(1-p)*(H-T-B);
+ let h='';
+ [0,.25,.5,.75,1].forEach(p=>{h+=`<line x1="${L}" x2="${W-R}" y1="${y(p)}" y2="${y(p)}" stroke="${css('--line')}"/><text x="${L-8}" y="${y(p)+4}" fill="${css('--muted')}" font-size="11" text-anchor="end">${p*100}%</text>`;});
+ [1,4,8,12,16].forEach(g=>{h+=`<text x="${x(g)}" y="${H-B+18}" fill="${css('--muted')}" font-size="11" text-anchor="middle">${g}</text>`;});
+ h+=`<text x="${(L+W-R)/2}" y="${H-4}" fill="${css('--dim')}" font-size="11" text-anchor="middle">games played this season</text>`;
+ let d='',area='';for(let g=1;g<=16;g+=0.25){const p=2/(2+g);d+=(g===1?'M':'L')+x(g)+','+y(p);}
+ area=d+`L${x(16)},${y(0)}L${x(1)},${y(0)}Z`;
+ h+=`<path d="${area}" fill="${css('--v2')}" fill-opacity=".12"/><path d="${d}" fill="none" stroke="${css('--v2')}" stroke-width="2.5"/>`;
+ [[1,'67%'],[4,'33%'],[8,'20%'],[16,'11%']].forEach(([g,t])=>{const p=2/(2+g);const end=g===16;h+=`<circle cx="${x(g)}" cy="${y(p)}" r="4" fill="${css('--v2')}"/><text x="${end?x(g)-4:x(g)+7}" y="${y(p)-10}" fill="${css('--text')}" font-size="12" font-weight="600" text-anchor="${end?'end':'start'}">${t}</text>`;});
+ s.innerHTML=h;})();
+
+// number line
+(()=>{const s=document.getElementById('linechart');const W=640,L=40,R=40;const lo=-8,hi=4;const x=v=>L+(v-lo)/(hi-lo)*(W-L-R);
+ let h=`<line x1="${L}" x2="${W-R}" y1="90" y2="90" stroke="${css('--line-strong')}" stroke-width="2"/>`;
+ for(let v=lo;v<=hi;v+=2){h+=`<line x1="${x(v)}" x2="${x(v)}" y1="85" y2="95" stroke="${css('--muted')}"/><text x="${x(v)}" y="114" fill="${css('--muted')}" font-size="11" text-anchor="middle">${v>0?'+'+v:v}</text>`;}
+ h+=`<text x="${x(lo)}" y="140" fill="${css('--dim')}" font-size="11">← Bills win by more</text><text x="${x(hi)}" y="140" fill="${css('--dim')}" font-size="11" text-anchor="end">Falcons win →</text>`;
+ h+=`<text x="${(L+W-R)/2}" y="160" fill="${css('--muted')}" font-size="11" text-anchor="middle">Falcons margin (points)</text>`;
+ const vg=-3.5,md=-1.9;
+ h+=`<rect x="${x(vg)}" y="84" width="${x(md)-x(vg)}" height="12" fill="${css('--v2')}" fill-opacity=".3"/>`;
+ h+=`<circle cx="${x(vg)}" cy="90" r="7" fill="${css('--vegas')}"/><text x="${x(vg)}" y="62" fill="${css('--vegas')}" font-size="12" font-weight="700" text-anchor="end">Vegas: Falcons +3.5</text><line x1="${x(vg)}" x2="${x(vg)}" y1="66" y2="82" stroke="${css('--vegas')}"/>`;
+ h+=`<circle cx="${x(md)}" cy="90" r="7" fill="${css('--v2')}"/><text x="${x(md)}" y="34" fill="${css('--v2')}" font-size="12" font-weight="700" text-anchor="start">v2: Falcons +1.9</text><line x1="${x(md)}" x2="${x(md)}" y1="38" y2="82" stroke="${css('--v2')}"/>`;
+ h+=`<text x="${(x(vg)+x(md))/2}" y="80" fill="${css('--text')}" font-size="11" font-weight="700" text-anchor="middle">edge 1.6</text>`;
+ s.innerHTML=h;})();
+
+// diverging example bars
+function diverge(id, rows, max){const el=document.getElementById(id);
+ rows.forEach(([n,c,v])=>{const r=document.createElement('div');r.className='drow';
+  const w=Math.min(Math.abs(v)/max,1)*50;const left=v<0?50-w:50;
+  const col=v<0?'var(--red)':'var(--v2)';
+  r.innerHTML=`<span class="lbl">${n}</span><div class="dtrack"><div class="dbar" style="left:${left}%;width:${Math.max(w,.4)}%;background:${col}"></div></div><span class="n">${v>0?'+':''}${v.toFixed(2)}</span>`;el.appendChild(r);});}
+const EX=[["4th-down conv.",-20.25,-1.76],["Rushing TDs",-12.96,0.35],["Passer rating",-5.79,-0.42],["Rush yards",-5.61,0.23],
+ ["Receiving TDs",-3.51,-1.15],["Yards / carry",-2.23,0.03],["Yards / attempt",-2.15,-0.14],["Sacks",-2.06,-0.21],
+ ["Completion %",-2.01,-0.02],["Rush 1st-down %",-1.64,0.04],["Pass 1st-down %",-1.05,-0.08],["3rd-down conv.",0.78,0.01],
+ ["Rec 1st-down %",-0.28,0.02],["Yards / reception",-0.22,-0.05],["Turnovers",0,-0.66]];
+diverge('exv1', EX.map(e=>[e[0],0,e[1]]), 21);
+diverge('exv2', [...EX].sort((a,b)=>Math.abs(b[2])-Math.abs(a[2])).map(e=>[e[0],0,e[2]]), 2);
+
+// stages
+const ST=[["v1 (current)",54.7,.22,[256,255,50.1],[89,81,52.4],[108,106,50.5]],
+ ["+ Normalize",62.5,.33,[253,258,49.5],[86,84,50.6],[125,110,53.2]],
+ ["+ Vs spread",62.5,.32,[252,259,49.3],[86,84,50.6],[120,128,48.4]],
+ ["+ Sacks",63.9,.35,[253,258,49.5],[86,84,50.6],[113,115,49.6]],
+ ["+ Smoothing",64.3,.39,[258,253,50.5],[84,86,49.4],[110,121,47.6]],
+ ["+ Rates/blend",65.1,.39,[254,257,49.7],[85,85,50.0],[119,138,46.3]],
+ ["v2 (+ fitted)",64.9,.40,[251,260,49.1],[88,82,51.8],[136,135,50.2]]];
+(()=>{const tb=document.getElementById('stagetbl');const f=a=>`${a[0]}-${a[1]} · ${a[2]}%`;
+ ST.forEach(s=>{tb.insertAdjacentHTML('beforeend',`<tr><td><strong>${s[0]}</strong></td><td class="num">${s[1]}%</td><td class="num">${s[2].toFixed(2)}</td><td class="num">${f(s[3])}</td><td class="num">${f(s[4])}</td><td class="num">${f(s[5])}</td></tr>`);});
+ tb.insertAdjacentHTML('beforeend',`<tr class="vegas"><td><strong>Vegas closing line</strong></td><td class="num">67.8%</td><td class="num">0.51</td><td class="num">–</td><td class="num">–</td><td class="num">–</td></tr>`);
+ const s=document.getElementById('stages');const W=660,H=300,L=46,R=16,T=16,B=58;const lo=45,hi=70;
+ const x=i=>L+(i+.5)*(W-L-R)/ST.length, y=v=>T+(hi-v)/(hi-lo)*(H-T-B);
+ let h='';for(let v=lo;v<=hi;v+=5){h+=`<line x1="${L}" x2="${W-R}" y1="${y(v)}" y2="${y(v)}" stroke="${css('--line')}"/><text x="${L-8}" y="${y(v)+4}" fill="${css('--muted')}" font-size="11" text-anchor="end">${v}%</text>`;}
+ h+=`<line x1="${L}" x2="${W-R}" y1="${y(67.8)}" y2="${y(67.8)}" stroke="${css('--vegas')}" stroke-dasharray="5 4"/><text x="${W-R}" y="${y(67.8)-6}" fill="${css('--vegas')}" font-size="11" text-anchor="end">Vegas 67.8%</text>`;
+ h+=`<line x1="${L}" x2="${W-R}" y1="${y(52.38)}" y2="${y(52.38)}" stroke="${css('--red')}" stroke-dasharray="5 4"/><text x="${W-R}" y="${y(52.38)-6}" fill="${css('--red')}" font-size="11" text-anchor="end">break-even 52.4%</text>`;
+ const line=(k,c)=>{let d='';ST.forEach((s_,i)=>{const v=k(s_);d+=(i?'L':'M')+x(i)+','+y(v);});h+=`<path d="${d}" fill="none" stroke="${c}" stroke-width="2.5"/>`;ST.forEach((s_,i)=>{const v=k(s_);h+=`<circle cx="${x(i)}" cy="${y(v)}" r="4" fill="${c}"/><text x="${x(i)}" y="${y(v)-9}" fill="${css('--text')}" font-size="10.5" text-anchor="middle">${v.toFixed(1)}</text>`;});};
+ line(s_=>s_[1],css('--v2')); line(s_=>s_[3][2],css('--v1'));
+ ST.forEach((s_,i)=>{h+=`<text x="${x(i)}" y="${H-B+18}" fill="${css('--dim')}" font-size="10.5" text-anchor="middle">${s_[0].replace('+ ','+')}</text>`;});
+ h+=`<text x="${(L+W-R)/2}" y="${H-10}" fill="${css('--muted')}" font-size="11" text-anchor="middle">each stage adds one fix to the one before</text>`;
+ s.innerHTML=h;})();
+</script>

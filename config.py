@@ -10,7 +10,7 @@ CURRENT_SEASON_START_YEAR = 2026      # Year the NFL season kicks off
 ACTIVE_WEEKS = range(2, 17)           # Weeks 2-16 inclusive (Week 1 & 17 excluded)
 
 # ── Current Week (update before each run_week.py execution) ──────
-CURRENT_WEEK = 2                      # Set to the upcoming week number
+CURRENT_WEEK = 3                      # Set to the upcoming week number
 
 # ── Prediction model ─────────────────────────────────────────────
 # "v2" = Escanor v2 (ESPN box scores, picks against the spread; needs
