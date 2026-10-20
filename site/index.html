@@ -37,6 +37,21 @@
 
     <!-- ── Content ────────────────────────────────────────── -->
     <div class="content">
+        <!-- ===== TEMPORARY NOTICE — Week 7 only. Auto-hides after the
+             data-hide-after date below; delete this whole block any time. ===== -->
+        <div class="notice-card" id="week-notice" data-hide-after="2026-10-28">
+            <span class="notice-label">Notice</span>
+            <h3>About last week</h3>
+            <p>
+                A bug pulled the wrong week and the lines came back empty, so Week 6 picks
+                never went up. I was in Ireland and didn’t catch it
+                until I got back. It’s been backfilled and graded off the closing lines —
+                <strong>7–7 against the spread</strong>. Fixed on my end, and it won’t
+                happen again. <a href="current-week.html">Week 7</a> is up.
+            </p>
+        </div>
+        <!-- ===== END TEMPORARY NOTICE ===== -->
+
         <p class="section-subtitle">2026 – 2027 Season</p>
         <h1 class="section-title hero">Current Season</h1>
 
@@ -144,6 +159,20 @@
             populate('top_5',        'top-5');
         }
 
+        /**
+         * Temporary homepage notice: remove itself once its date has passed,
+         * so a one-week note can't quietly live on the homepage for a month.
+         */
+        function expireNotice() {
+            const el = document.getElementById('week-notice');
+            if (!el) return;
+            const until = el.dataset.hideAfter;
+            if (!until) return;
+            const cutoff = new Date(`${until}T00:00:00`);
+            if (!isNaN(cutoff) && new Date() >= cutoff) el.remove();
+        }
+
+        document.addEventListener('DOMContentLoaded', expireNotice);
         document.addEventListener('DOMContentLoaded', loadSeasonData);
     </script>
 </body>

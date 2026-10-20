@@ -973,6 +973,70 @@ a:hover { color: var(--accent); }
     color: #05070d;
 }
 
+/* ── Homepage notice (temporary announcements) ──────────── */
+.notice-card {
+    background:
+        radial-gradient(ellipse at top left, rgba(239,68,68,0.10) 0%, transparent 62%),
+        var(--bg-elev);
+    border: 1px solid var(--line-strong);
+    border-radius: 14px;
+    padding: 26px 28px;
+    margin: 0 0 40px;
+    position: relative;
+    overflow: hidden;
+}
+
+.notice-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--red), transparent);
+}
+
+.notice-label {
+    display: inline-block;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--red-hi);
+    margin-bottom: 12px;
+}
+
+.notice-card h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    line-height: 1.45;
+    margin-bottom: 12px;
+}
+
+.notice-card p {
+    color: var(--text-dim);
+    font-size: 0.93rem;
+    line-height: 1.65;
+    margin-bottom: 12px;
+}
+
+.notice-card p:last-child { margin-bottom: 0; }
+
+.notice-card .notice-sign {
+    color: var(--text-muted);
+    font-size: 0.88rem;
+}
+
+.notice-card a {
+    color: var(--accent-hi);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+
+@media (max-width: 560px) {
+    .notice-card { padding: 22px 20px; margin-bottom: 32px; }
+    .notice-card h3 { font-size: 1.02rem; }
+    .notice-card p { font-size: 0.89rem; }
+}
+
 /* ── Footer ─────────────────────────────────────────────────── */
 .footer {
     background: rgba(5, 7, 13, 0.9);
