@@ -37,6 +37,41 @@ def copy_data_to_site():
     print(f"\n  Copied data/ → site/data/")
 
 
+def check_lines(matchups, week):
+    """Guard against running v2 on a week whose betting lines are gone.
+
+    ESPN strips the odds object from a game once it goes final, so re-running a
+    week that has already been played returns spread_home = None for every game.
+    Escanor v2 picks against the spread; with no line, choose_side() silently
+    falls back to a straight-up pick and the labels read "(no line)". Fail loudly
+    instead.
+
+    Returns True if the run should proceed.
+    """
+    missing = [m for m in matchups if m.get("spread_home") is None]
+    if not missing:
+        return True
+
+    def label(m):
+        return f"{m['away_team_short']} @ {m['home_team_short']}"
+
+    if len(missing) == len(matchups):
+        print(f"\n  ERROR: none of the {len(matchups)} Week {week} games came back with a")
+        print("  betting line. ESPN drops the odds once a game goes final, so Week")
+        print(f"  {week} has most likely already been played.")
+        print(f"  config.py has CURRENT_WEEK = {CURRENT_WEEK}; set it to the upcoming week")
+        print("  (or pass --week N) and rerun. Aborting rather than emitting")
+        print("  straight-up picks labelled as spread picks.\n")
+        return False
+
+    print(f"\n  WARNING: {len(missing)} of {len(matchups)} Week {week} games have no line.")
+    print("  These will fall back to straight-up picks labelled \"(no line)\":")
+    for m in missing:
+        print(f"    - {label(m)}")
+    print("  Proceeding with the rest.\n")
+    return True
+
+
 def main():
     parser = argparse.ArgumentParser(description="RoachFinder 3.0 — Weekly Pipeline")
     parser.add_argument(
@@ -59,6 +94,8 @@ def main():
         matchups = scrape_matchups(week)
         if not matchups:
             print("\n  ERROR: No matchups found. Is the ESPN schedule available for this week?")
+            return
+        if not check_lines(matchups, week):
             return
         results = run_predictions_v2(matchups, CURRENT_SEASON_START_YEAR, week)
     else:
