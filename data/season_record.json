@@ -1,25 +1,25 @@
 {
   "cumulative": {
     "all_spreads": {
-      "wins": 54,
-      "losses": 62,
+      "wins": 58,
+      "losses": 72,
       "pushes": 4,
-      "win_pct": 46.552
+      "win_pct": 44.615
     },
     "above_median": {
-      "wins": 23,
-      "losses": 27,
+      "wins": 26,
+      "losses": 33,
       "pushes": 2,
-      "win_pct": 46.0
+      "win_pct": 44.068
     },
     "top_5": {
-      "wins": 16,
-      "losses": 23,
+      "wins": 19,
+      "losses": 25,
       "pushes": 1,
-      "win_pct": 41.026
+      "win_pct": 43.182
     }
   },
-  "rolling_median_cf": 1.855,
+  "rolling_median_cf": 1.94,
   "weeks": {
     "2": {
       "games": [
@@ -995,7 +995,7 @@
         }
       ]
     },
-    "10": {
+    "9": {
       "games": [
         {
           "pick": "Vikings +3.0",
@@ -1131,6 +1131,136 @@
           "top_5": false,
           "away_team": "Rams",
           "home_team": "Commanders"
+        }
+      ]
+    },
+    "10": {
+      "games": [
+        {
+          "pick": "Ravens -4.5",
+          "confidence_factor": 3.37,
+          "result": "loss",
+          "above_median": true,
+          "top_5": true,
+          "away_team": "Chargers",
+          "home_team": "Ravens"
+        },
+        {
+          "pick": "Browns +4.5",
+          "confidence_factor": 3.2,
+          "result": "win",
+          "above_median": true,
+          "top_5": true,
+          "away_team": "Texans",
+          "home_team": "Browns"
+        },
+        {
+          "pick": "Chiefs -3.0",
+          "confidence_factor": 2.92,
+          "result": "win",
+          "above_median": true,
+          "top_5": true,
+          "away_team": "Chiefs",
+          "home_team": "Falcons"
+        },
+        {
+          "pick": "49ers -3.5",
+          "confidence_factor": 2.63,
+          "result": "win",
+          "above_median": true,
+          "top_5": true,
+          "away_team": "49ers",
+          "home_team": "Cowboys"
+        },
+        {
+          "pick": "Titans +10.5",
+          "confidence_factor": 2.42,
+          "result": "loss",
+          "above_median": true,
+          "top_5": true,
+          "away_team": "Jaguars",
+          "home_team": "Titans"
+        },
+        {
+          "pick": "Cardinals +9.5",
+          "confidence_factor": 2.33,
+          "result": "loss",
+          "above_median": true,
+          "top_5": false,
+          "away_team": "Rams",
+          "home_team": "Cardinals"
+        },
+        {
+          "pick": "Jets +8.5",
+          "confidence_factor": 2.32,
+          "result": "loss",
+          "above_median": true,
+          "top_5": false,
+          "away_team": "Bills",
+          "home_team": "Jets"
+        },
+        {
+          "pick": "Giants -1.5",
+          "confidence_factor": 2.19,
+          "result": "loss",
+          "above_median": true,
+          "top_5": false,
+          "away_team": "Commanders",
+          "home_team": "Giants"
+        },
+        {
+          "pick": "Raiders +6.5",
+          "confidence_factor": 2.02,
+          "result": "loss",
+          "above_median": true,
+          "top_5": false,
+          "away_team": "Seahawks",
+          "home_team": "Raiders"
+        },
+        {
+          "pick": "Packers -3.0",
+          "confidence_factor": 0.84,
+          "result": "loss",
+          "above_median": false,
+          "top_5": false,
+          "away_team": "Vikings",
+          "home_team": "Packers"
+        },
+        {
+          "pick": "Patriots +2.5",
+          "confidence_factor": 0.83,
+          "result": "loss",
+          "above_median": false,
+          "top_5": false,
+          "away_team": "Patriots",
+          "home_team": "Lions"
+        },
+        {
+          "pick": "Colts -3.5",
+          "confidence_factor": 0.39,
+          "result": "loss",
+          "above_median": false,
+          "top_5": false,
+          "away_team": "Dolphins",
+          "home_team": "Colts"
+        },
+        {
+          "pick": "Bengals -3.5",
+          "confidence_factor": 0.36,
+          "result": "win",
+          "above_median": false,
+          "top_5": false,
+          "away_team": "Steelers",
+          "home_team": "Bengals"
+        },
+        {
+          "pick": "Saints -2.5",
+          "confidence_factor": 0.21,
+          "result": "loss",
+          "above_median": false,
+          "top_5": false,
+          "away_team": "Panthers",
+          "home_team": "Saints"
         }
       ]
     }
